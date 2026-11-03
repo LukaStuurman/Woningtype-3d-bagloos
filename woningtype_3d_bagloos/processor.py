@@ -29,6 +29,7 @@ from .classify import (
     normalized_text, safe_int,
 )
 from .tiling import NETHERLANDS_RD, area, subdivide, tile_owns_point, tile_windows
+from .styling import WoningtypePostProcessor
 
 PDOK_BAG_WFS = "https://service.pdok.nl/kadaster/bag/wfs/v2_0"
 RD = QgsCoordinateReferenceSystem("EPSG:28992")
@@ -469,6 +470,16 @@ class WoningtypenBepalenAlgorithm(QgsProcessingAlgorithm):
                 )
 
         feedback.setProgress(100)
+        # QGIS laadt slechts de ENIGE uitvoersink. Koppel styling uitsluitend
+        # aan die output (niet aan de tijdelijke BAG WFS of een tweede laag).
+        # De post-processor draait in de GUI-thread zodra QGIS de laag laadt.
+        if context.willLoadLayerOnCompletion(dest_id):
+            details = context.layerToLoadOnCompletionDetails(dest_id)
+            suffix = "AHN-dakcontrole" if mode == 0 else "BAG-contouren"
+            details.name = "Woningtypen - %s" % suffix
+            details.setPostProcessor(
+                WoningtypePostProcessor.create(details.name)
+            )
         feedback.pushInfo(
             "Klaar: %d panden opgeslagen uit %d tegels; %d woonpanden "
             "met onzekere AHN-dakcontacten. Uitvoer: %s"
