@@ -56,7 +56,14 @@ class WoningtypeBagloosPlugin:
         )
         processing.execAlgorithmDialog(
             "woningtypebagloos:bepaal_woningtypen",
-            {"EXTENT": extent, "MODE": 0, "OUTPUT": "TEMPORARY_OUTPUT"},
+            {
+                "AREA_MODE": 0,
+                "EXTENT": extent,
+                "MODE": 0,
+                "NATIONAL_AHN": False,
+                "TILE_SIZE": 10000,
+                "OUTPUT": "TEMPORARY_OUTPUT",
+            },
         )
 
     def unload(self):
