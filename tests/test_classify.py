@@ -29,6 +29,20 @@ class WoningtypeTests(unittest.TestCase):
         result = classify_pands(pands, adjacency)
         self.assertEqual([r["woningtype"] for r in result], [HOEK, TUSSEN, HOEK])
 
+    def test_aanliggende_garage_als_apart_bag_pand_is_geen_woonbuur(self):
+        # Sommige garages zijn eigen BAG-panden zonder VBO, dus niet 1 VBO.
+        houses = [
+            self._home(),
+            {"usage": "overige gebruiksfunctie", "count_vbo": 0},
+            self._home(),
+        ]
+        result = classify_pands(
+            houses, {0: {1}, 1: {0, 2}, 2: {1}}, source="BAG"
+        )
+        self.assertEqual(
+            [r["woningtype"] for r in result], [VRIJ, "", VRIJ]
+        )
+
     def test_carport_separates_roof_contact(self):
         pands = [self._home(), self._home()]
         result = classify_pands(
