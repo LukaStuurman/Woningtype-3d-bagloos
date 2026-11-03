@@ -42,7 +42,8 @@ def roof_continuity(edge_a, edge_b, inside_a, inside_b,
 
     `main_a` en `main_b` zijn robuuste hoogtekwantielen van het HELE
     BAG-pand, niet alleen van de gevel met de buur. Een lage garageverbinding
-    mag geen rijwoning veroorzaken. None betekent: onvoldoende zekerheid.
+    mag geen rijwoning veroorzaken. 'bijgebouw' duidt een lage
+    garage-/carportverbinding aan. None is onvoldoende zekerheid.
     """
     import statistics
     from math import isfinite
@@ -70,12 +71,13 @@ def roof_continuity(edge_a, edge_b, inside_a, inside_b,
         if (main_a - ha >= 2.75 and main_b - hb >= 2.75
                 and main_a - local_a >= 1.75
                 and main_b - local_b >= 1.75):
-            return False
+            return "bijgebouw"
 
-    # Ook zonder betrouwbare complete pandhoogte kan een duidelijk lager
-    # contact uitgesloten worden; bij twijfel blijft het resultaat onbekend.
+    # Ook als alleen de profielen een duidelijke lage tussenbouw aanwijzen,
+    # markeren we een lage dakverbinding apart. Een andere dakhoogte (delta
+    # >= 3 m) blijft False: daaruit volgt GEEN garagedak-koppeling.
     if deep_a >= 3.5 and deep_b >= 3.5 and delta < 1.5:
-        return False
+        return "bijgebouw"
     if delta <= 0.85 and deep_a <= 2.75 and deep_b <= 2.75:
         return True
     return None
@@ -86,19 +88,40 @@ def classify_pands(records, neighbours, roof_links=None, source="AHN"):
 
     records: [{usage, count_vbo}, ...]
     neighbours: {index: set(buurindex)}
-    roof_links: {(min_idx,max_idx): True/False/None}
-    Alleen een bewezen False verwijdert een geometrisch aangrenzende buur.
+    roof_links: {(min_idx,max_idx): True/False/None/"bijgebouw"}.
+    Een aangrenzend laag garagedak vormt geen extra hoofdgebouwbuur.
+    Bij een uniek, wederzijds garagecontact tussen twee losse woonpanden
+    mag een indicatief twee-onder-een-kappaar worden herkend.
     """
     roof_links = roof_links or {}
     out = []
-    effective = {}
+    effective, accessory = {}, {}
     for i in range(len(records)):
-        effective[i] = [
-            j for j in sorted(neighbours.get(i, set()))
-            if living_pand(records[i].get("usage"))
-            and living_pand(records[j].get("usage"))
-            and roof_links.get((min(i, j), max(i, j))) is not False
-        ]
+        effective[i], accessory[i] = [], []
+        for j in sorted(neighbours.get(i, set())):
+            if (not living_pand(records[i].get("usage"))
+                    or not living_pand(records[j].get("usage"))):
+                continue
+            link = roof_links.get((min(i, j), max(i, j)))
+            if link == "bijgebouw":
+                accessory[i].append(j)
+            elif link is not False:
+                effective[i].append(j)
+
+    # Twee huizen die ALLEEN via elkaars lage garages aansluiten zijn
+    # vermoedelijk twee-onder-een-kap, niet vrijstaand. Herken uitsluitend
+    # een wederzijdse unieke garageverbinding: bij meerdere kandidaten is
+    # de woningpaar-indeling niet voldoende te bewijzen.
+    garage_pairs = set()
+    for i in range(len(records)):
+        if effective[i] or len(accessory[i]) != 1:
+            continue
+        j = accessory[i][0]
+        if (not effective[j] and accessory[j] == [i]
+                and safe_int(records[i].get("count_vbo")) <= 1
+                and safe_int(records[j].get("count_vbo")) <= 1):
+            effective[i].append(j)
+            garage_pairs.add(i)
 
     for i, record in enumerate(records):
         has_home = living_pand(record.get("usage"))
@@ -128,6 +151,7 @@ def classify_pands(records, neighbours, roof_links=None, source="AHN"):
                  (min(i, j), max(i, j)) in roof_links]
         verified = sum(t is not None for t in tests)
         connected = sum(t is True for t in tests)
+        low_roof = sum(t == "bijgebouw" for t in tests)
         uncertain = (len(neighbours.get(i, set())) - verified) if source == "AHN" else 0
         if not has_home:
             quality = "niet van toepassing"
@@ -137,6 +161,10 @@ def classify_pands(records, neighbours, roof_links=None, source="AHN"):
             quality = "geen aangrenzende BAG-panden"
         elif uncertain:
             quality = "controle nodig: AHN-contact ontbreekt of is onzeker"
+        elif i in garage_pairs:
+            quality = "indicatief twee-onder-een-kap via garages; controle gewenst"
+        elif accessory[i]:
+            quality = "lage garagecontacten niet als hoofddak meegeteld"
         else:
             quality = "AHN-dakcontact indicatief"
 
@@ -144,6 +172,7 @@ def classify_pands(records, neighbours, roof_links=None, source="AHN"):
             "woningtype": category,
             "dakburen": len(neighbours.get(i, set())),
             "dakverbonden": connected,
+            "dakbijgeb": low_roof,
             "dakgetest": verified,
             "dakonzeker": uncertain,
             "controle": quality,
