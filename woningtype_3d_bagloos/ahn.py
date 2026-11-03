@@ -6,7 +6,8 @@ volledig 3D-model. QGIS/GDAL leest de gecachte GeoTIFF-bestanden.
 from __future__ import annotations
 
 from collections import OrderedDict
-from math import ceil, floor, hypot, isfinite
+from hashlib import blake2b
+from math import ceil, floor, hypot, isfinite, sqrt
 from pathlib import Path
 from urllib.parse import urlencode
 from urllib.request import Request, urlopen
@@ -101,6 +102,7 @@ class AhnRoofEvidence:
         self.cache = Path(cache_dir)
         self.cache.mkdir(parents=True, exist_ok=True)
         self.rasters = OrderedDict()
+        self.roof_levels = OrderedDict()
         self.unavailable = set()
         self.failed = 0
         self.downloads = 0
@@ -191,10 +193,55 @@ class AhnRoofEvidence:
             return None
         return float(value)
 
+    def main_roof_height(self, geom):
+        """Bepaal robuust de hoge dakzone over de VOLLEDIGE BAG-pandcontour.
+
+        Een contactstrook over een garage is geen representatieve dakhoogte
+        van het huis. Gebruik daarom een begrensd regelmatig DSM-steekproefgrid
+        over het hele pand. Het 80e percentiel vermijdt een enkele boom of
+        schoorsteen als 'hoogste dak' en blijft gevoelig voor hogere hoofdvolumes.
+        """
+        if geom.isEmpty():
+            return None
+        key = blake2b(bytes(geom.asWkb()), digest_size=12).digest()
+        if key in self.roof_levels:
+            self.roof_levels.move_to_end(key)
+            return self.roof_levels[key]
+        rect = geom.boundingBox()
+        width, height = rect.width(), rect.height()
+        if width <= 0 or height <= 0:
+            return None
+        spacing = max(1.5, sqrt(width * height / 140.0))
+        nx = max(1, ceil(width / spacing))
+        ny = max(1, ceil(height / spacing))
+        values = []
+        for j in range(ny):
+            if self.feedback.isCanceled():
+                return None
+            y = rect.yMinimum() + (j + 0.5) * height / ny
+            for i in range(nx):
+                x = rect.xMinimum() + (i + 0.5) * width / nx
+                if not _point_in(geom, x, y):
+                    continue
+                h = self.height(x, y)
+                if h is not None and isfinite(h):
+                    values.append(h)
+        values.sort()
+        level = (values[int((len(values) - 1) * 0.80)]
+                 if len(values) >= 6 else None)
+        self.roof_levels[key] = level
+        if len(self.roof_levels) > 1500:
+            self.roof_levels.popitem(last=False)
+        return level
+
     def check(self, geom_a, geom_b):
-        """True/False/None: vermoedelijk dakdoorlopend / gescheiden / onzeker."""
+        """True/False/None: doorlopend hoofddak / lage aanbouw / onzeker."""
         cuts = _roof_cross_sections(geom_a, geom_b)
         if len(cuts) < 3:
+            return None
+        main_a = self.main_roof_height(geom_a)
+        main_b = self.main_roof_height(geom_b)
+        if main_a is None or main_b is None:
             return None
         edge_a, edge_b, inside_a, inside_b = [], [], [], []
         for x, y, nx, ny in cuts:
@@ -216,4 +263,6 @@ class AhnRoofEvidence:
                     inside_a.append(self.height(ax, ay))
                 if _point_in(geom_b, bx, by):
                     inside_b.append(self.height(bx, by))
-        return roof_continuity(edge_a, edge_b, inside_a, inside_b)
+        return roof_continuity(
+            edge_a, edge_b, inside_a, inside_b, main_a, main_b
+        )
