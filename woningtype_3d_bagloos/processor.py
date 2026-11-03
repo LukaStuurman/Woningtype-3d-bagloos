@@ -109,9 +109,9 @@ def _processing_extent(parameters, context, algorithm, area_mode):
 
 def _save_location():
     """Voor landelijke uitvoer nooit alle polygonen in een geheugenlaag bewaren."""
-    where = QStandardPaths.writableLocation(
-        QStandardPaths.StandardLocation.GenericDataLocation
-    )
+    # PyQt5/QGIS 3 kent soms alleen het directe QStandardPaths-enum.
+    enum = getattr(QStandardPaths, "StandardLocation", QStandardPaths)
+    where = QStandardPaths.writableLocation(enum.GenericDataLocation)
     if not where:
         raise QgsProcessingException(
             "Geen lokale gegevensmap gevonden. Kies expliciet een GeoPackage-output."
