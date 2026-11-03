@@ -12,7 +12,8 @@ import processing
 from woningtype_3d_bagloos.plugin import WoningtypeBagloosProvider
 provider=WoningtypeBagloosProvider();QgsApplication.processingRegistry().addProvider(provider)
 expected=json.loads((root/'qgis_tests/data/expected.json').read_text())
-regions={'case1':(162273,388284,162322,388304),'case2':(162286,388402,162326,388421),'case3':(162543,388378,162601,388457)}
+expected.update(json.loads((root/'qgis_tests/data_flat/expected.json').read_text()))
+regions={'case1':(162273,388284,162322,388304),'case2':(162286,388402,162326,388421),'case3':(162543,388378,162601,388457),'flat':(162615,388470,162720,388513),'row':(162435,388445,162500,388458)}
 results={}
 for case,bounds in regions.items():
  project=QgsProject.instance();before=set(project.mapLayers());context=QgsProcessingContext();context.setProject(project)
@@ -27,15 +28,15 @@ for case,bounds in regions.items():
   if e['case']!=case:continue
   assert bagid in features,(case,bagid,'missing')
   f=features[bagid];assert f['Woningtype']==e['woningtype'],(case,bagid,f.attributes());assert f['DakOnzeker']==0,f.attributes()
-  rows.append({'bag_id':bagid,'woningtype':f['Woningtype'],'dakbijgeb':f['DakBijgeb'],'dakverbonden':f['DakVerbonden'],'controle':f['Controle']})
+  rows.append({'bag_id':bagid,'woningtype':f['Woningtype'],'dakbijgeb':f['DakBijgeb'],'dakverbonden':f['DakVerbonden'],'controle':f['Controle'],'aantal_vbo':f['aantal_vbo'],'woonbewijs':f['Woonbewijs']})
  results[case]={'total_features':layer.featureCount(),'validated':len(rows),'results':rows};print(case,results[case],flush=True)
  settings=QgsMapSettings();settings.setLayers([layer]);settings.setDestinationCrs(QgsCoordinateReferenceSystem('EPSG:28992'));settings.setExtent(QgsRectangle(*bounds));settings.setOutputSize(QSize(1000,850));settings.setBackgroundColor(__import__('qgis.PyQt.QtGui',fromlist=['QColor']).QColor('white'))
  job=QgsMapRendererParallelJob(settings);job.start();job.waitForFinished();job.renderedImage().save(str(OUT/(case+'.png')))
  # Persist categorized style alongside each GeoPackage.
  layer.saveNamedStyle(str(OUT/(case+'.qml')))
  project.removeMapLayer(layer.id())
-Path('outputs/live_validation.json').write_text(json.dumps({'qgis':Qgis.QGIS_VERSION,'source':'LIVE PDOK WFS + real AHN WCS/cache','cases':results},indent=2))
-print('LIVE 27/27 OK',flush=True)
+(OUT/'live_validation.json').write_text(json.dumps({'qgis':Qgis.QGIS_VERSION,'source':'LIVE PDOK WFS + real AHN WCS/cache','cases':results},indent=2))
+print('LIVE 50/50 OK',flush=True)
 QgsProject.instance().clear()
 app.exitQgis()
 

@@ -90,7 +90,8 @@ def _roof_cross_sections(a, b):
 class AhnRoofEvidence:
     """Een lokale rastercache wordt gedeeld tussen opeenvolgende QGIS-runs."""
 
-    def __init__(self, feedback, offline=False, cache_dir=None):
+    def __init__(self, feedback, offline=False, cache_dir=None, coverage=COVERAGE):
+        self.coverage = coverage
         self.feedback = feedback
         self.offline = bool(offline)
         if cache_dir is None:
@@ -98,18 +99,19 @@ class AhnRoofEvidence:
             data = QStandardPaths.writableLocation(enum.GenericDataLocation)
             if not data:
                 raise RuntimeError("Geen beschrijfbare gebruikersmap voor AHN-cache")
-            cache_dir = Path(data) / "Woningtype3DBagloos" / CACHE_VERSION
+            cache_dir = Path(data) / "Woningtype3DBagloos" / CACHE_VERSION.replace("dsm_05m", coverage)
         self.cache = Path(cache_dir)
         self.cache.mkdir(parents=True, exist_ok=True)
         self.rasters = OrderedDict()
         self.roof_levels = OrderedDict()
+        self.refinements = {}
         self.unavailable = set()
         self.failed = 0
         self.downloads = 0
         self.first_warning_sent = False
 
     def _path(self, key):
-        return self.cache / ("dsm_%d_%d.tif" % key)
+        return self.cache / ("%s_%d_%d.tif" % (self.coverage.split("_")[0], *key))
 
     def _download(self, key, destination):
         if self.offline or self.failed >= MAX_FAILED_REQUESTS:
@@ -117,7 +119,7 @@ class AhnRoofEvidence:
         xmin, ymin = key[0] * TILE_SIZE, key[1] * TILE_SIZE
         params = [
             ("service", "WCS"), ("version", "2.0.1"), ("request", "GetCoverage"),
-            ("coverageId", COVERAGE), ("format", "image/tiff"),
+            ("coverageId", self.coverage), ("format", "image/tiff"),
             ("subset", "x(%.1f,%.1f)" % (xmin-1.0, xmin+TILE_SIZE+1.0)),
             ("subset", "y(%.1f,%.1f)" % (ymin-1.0, ymin+TILE_SIZE+1.0)),
         ]
@@ -219,6 +221,8 @@ class AhnRoofEvidence:
                     if h is not None and isfinite(h):
                         samples[i, j] = h
         zones = RoofZones(samples, origin, spacing, expected)
+        if key in self.refinements:
+            self.refinements[key](zones)
         self.roof_levels[key] = zones
         # Spatial grids are larger than the previous scalar height cache.
         if len(self.roof_levels) > 128:

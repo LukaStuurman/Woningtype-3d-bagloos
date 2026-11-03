@@ -83,6 +83,10 @@ def roof_continuity(edge_a, edge_b, inside_a, inside_b,
     return None
 
 
+def is_apartment(record):
+    return living_pand(record.get("usage")) and safe_int(record.get("count_vbo")) > 1
+
+
 def classify_pands(records, neighbours, roof_links=None, source="AHN"):
     """Geef woningtypen en diagnostiek in dezelfde volgorde als records terug.
 
@@ -109,11 +113,11 @@ def classify_pands(records, neighbours, roof_links=None, source="AHN"):
 
     for i, record in enumerate(records):
         has_home = living_pand(record.get("usage"))
-        is_apartment = has_home and safe_int(record.get("count_vbo")) > 1
+        apartment = is_apartment(record)
         adjacent = effective[i]
         if not has_home:
             category = ""
-        elif is_apartment:
+        elif apartment:
             category = APPARTEMENT
         elif not adjacent:
             category = VRIJ
@@ -123,8 +127,7 @@ def classify_pands(records, neighbours, roof_links=None, source="AHN"):
             neighbour = adjacent[0]
             neighbouring_record = records[neighbour]
             if len(effective[neighbour]) >= 2 or (
-                living_pand(neighbouring_record.get("usage"))
-                and safe_int(neighbouring_record.get("count_vbo")) > 1
+                is_apartment(neighbouring_record)
             ):
                 category = HOEK
             else:
@@ -145,6 +148,8 @@ def classify_pands(records, neighbours, roof_links=None, source="AHN"):
             quality = "geen aangrenzende BAG-panden"
         elif uncertain:
             quality = "controle nodig: AHN-contact ontbreekt of is onzeker"
+        elif record.get("home_evidence"):
+            quality = record["home_evidence"]
         elif accessory[i]:
             quality = "lage garagecontacten niet als hoofddak meegeteld"
         else:

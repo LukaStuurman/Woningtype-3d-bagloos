@@ -79,3 +79,49 @@ Niet gevalideerd: een volledige landelijke run, andere ongeziene geografische wo
 - AHN: https://service.pdok.nl/rws/ahn/wcs/v1_0 (`dsm_05m`, WCS 2.0.1, oorspronkelijke GeoTIFFs)
 - Ophaling, queryomschrijving en SHA-256: [provenance.json](qgis_tests/data/provenance.json)
 - QGIS 4-metadata: https://plugins.qgis.org/docs/migrate-qgis4 (`qgisMaximumVersion=4.99`; alleen metadata aanpassen bewijst geen runtime-compatibiliteit).
+
+## Uitbreiding 0.6.0 — bijna even hoge carports
+
+Rechtstreeks live uitgevoerd op QGIS 4.2.3, zonder Computer Use. Het nieuwe screenshot is gematcht op het werkelijke BAG-blok aan Esperenkamp/Florencelaan. BGT-pandcontouren zijn onderzocht maar geven hier geen aanvullende scheiding; deze zijn daarom geen afhankelijkheid van de plugin geworden.
+
+Het woon- en carportdak ligt grotendeels rond 19,5 m NAP; kleinere substantiële dakdelen liggen rond 20,0 m NAP. De eerdere 1,75 m-zonegrens kan dit onderscheid niet maken. De aanvullende analyse vereist daarom tegelijk een sterk ingesneden contour, een kleine robuuste hoogtecontrastzone (0,3–1,0 m), een gebouwhoogte van 1,8–4,5 m boven gemeten DTM-terrein en afzonderlijke dakdelen van minstens 12 m² nabij de geregistreerde VBO-punten. De BAG-vorm beslaat hierbij maximaal 82% van de convexe omhulling. Bij gebrek aan deze bewijzen blijft de normale beoordeling actief.
+
+DTM bevat onder gebouwen vaak geen waarden. De hoogte boven maaiveld wordt daarom bepaald met echte DTM-metingen buiten de BAG-contour, ook in binnenplaatsen; er worden geen terreinhoogten verzonnen of onder het dak ingevuld.
+
+**Op expliciete aanwijzing blijft het BAG-pand met twee VBO’s appartement.** De aanvullende dakcontrole mag zijn carportcontacten wel onderscheiden zodat de naburige woningen niet als rijwoning worden meegeteld. Het aantal VBO’s en de BAG-contour worden niet herschreven.
+
+| Groep | Werkelijke test | Uitkomst |
+|---|---|---|
+| Nieuw blok | 13 BAG-panden, 14 VBO’s | 12 vrijstaand; 1 appartement met 2 VBO’s |
+| Rijwoningcontrole | 10 echte nabije BAG-woonpanden | 2 hoekwoningen; 8 tussenwoningen |
+| Eerdere screenshots | 27 BAG-woonpanden | Alle 27 behouden de gevraagde indeling |
+
+De volledige live Processing-route slaagt voor 50/50 doelpanden. Iedere run maakt één automatisch gecategoriseerde resultaatlaag. Het live-gebied bevat daarnaast niet-woonpanden, die de lege categorie houden.
+
+De tien controlewoningen vormen een echte doorlopende rij met hoofdcontacten, met BAG-ID’s 0772100000339629 tot en met 0772100000339638. Dit zijn geen synthetische rechthoeken.
+
+### Exacte nieuwe doelpanden
+
+| BAG-ID | Verwachte en gemeten categorie | Aantal VBO |
+|---|---|---:|
+| 0772100000338954 | vrijstaande woning | 1 |
+| 0772100000338955 | appartement | 2 |
+| 0772100000338956 | vrijstaande woning | 1 |
+| 0772100000338958 | vrijstaande woning | 1 |
+| 0772100000338960 | vrijstaande woning | 1 |
+| 0772100000338961 | vrijstaande woning | 1 |
+| 0772100000338962 | vrijstaande woning | 1 |
+| 0772100000339048 | vrijstaande woning | 1 |
+| 0772100000339049 | vrijstaande woning | 1 |
+| 0772100000339051 | vrijstaande woning | 1 |
+| 0772100000339053 | vrijstaande woning | 1 |
+| 0772100000339054 | vrijstaande woning | 1 |
+| 0772100000339056 | vrijstaande woning | 1 |
+
+### Regressietest
+
+`python qgis_tests/flat_regression.py` controleert de echte snapshots, SHA-256, gewijzigde featurevolgorde/contactrichting, herstel van dakverfijning na cache-evictie, terugval bij ontbrekend VBO-bewijs, het behouden BAG-aantal VBO en één automatisch gestylede geheugen-/GeoPackage-laag. De gewone rij en de appartementcategorie zijn expliciete controles.
+
+Bronnen: BAG WFS, BAG OGC API verblijfsobject, AHN WCS `dsm_05m` én `dtm_05m`. Zie [data_flat/provenance.json](qgis_tests/data_flat/provenance.json) voor bron-URL’s, opnamedatum van de snapshot en SHA-256. De opnamedatum van de snapshot is niet de vliegdatum van AHN.
+
+Niet gevalideerd: alle denkbare vlakke rijwoning- en bungalowvarianten, heel Nederland, of de geopende QGIS-interface. Een nauwe aansluiting met dezelfde hoogte kan ook met deze gegevens onzeker blijven. De straatfoto ondersteunt de gewenste interpretatie van dit blok; de plugin classificeert geen straatfoto’s en gebruikt geen plaats- of BAG-ID-specifieke uitzondering. Techbase blijft ongemoeid.

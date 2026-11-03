@@ -26,8 +26,9 @@ from qgis.core import (
 from .ahn import AhnRoofEvidence
 from .classify import (
     classify_pands, excluded_pand, living_pand, normalize_bag_id,
-    normalized_text, safe_int,
+    normalized_text, safe_int, is_apartment,
 )
+from .residential import prepare_homes
 from .tiling import NETHERLANDS_RD, area, subdivide, tile_owns_point, tile_windows
 from .styling import WoningtypePostProcessor
 
@@ -203,12 +204,12 @@ def _roof_links(records, neighbours, evidence, feedback):
     for i, neighbours_i in neighbours.items():
         if feedback.isCanceled():
             break
-        if not living_pand(records[i]["usage"]) or records[i]["count_vbo"] > 1:
+        if not living_pand(records[i]["usage"]) or (is_apartment(records[i]) and not records[i].get("flat_roof_evidence")):
             continue
         for j in neighbours_i:
             if j <= i:
                 continue
-            if not living_pand(records[j]["usage"]) or records[j]["count_vbo"] > 1:
+            if not living_pand(records[j]["usage"]) or (is_apartment(records[j]) and not records[j].get("flat_roof_evidence")):
                 continue
             links[i, j] = evidence.check(records[i]["geom"], records[j]["geom"])
     return links
@@ -229,6 +230,7 @@ def _result_fields():
         ("DakBijgeb", QVariant.Int),
         ("DakOnzeker", QVariant.Int),
         ("Controle", QVariant.String),
+        ("Woonbewijs", QVariant.String),
     ):
         fields.append(QgsField(name, variant))
     return fields
@@ -422,6 +424,8 @@ class WoningtypenBepalenAlgorithm(QgsProcessingAlgorithm):
                 dense_splits += 1
                 continue
 
+            if ahn is not None:
+                prepare_homes(records, ahn, feedback, offline=offline)
             neighbours = _find_neighbours(records, tolerance, feedback)
             roof_links = (_roof_links(records, neighbours, ahn, feedback)
                           if ahn is not None else {})
@@ -453,6 +457,7 @@ class WoningtypenBepalenAlgorithm(QgsProcessingAlgorithm):
                     decision["dakburen"], decision["dakgetest"],
                     decision["dakverbonden"], decision["dakbijgeb"],
                     decision["dakonzeker"], decision["controle"],
+                    record.get("home_evidence", ""),
                 ])
                 batch.append(result)
                 count += 1

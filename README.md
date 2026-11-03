@@ -51,6 +51,16 @@ Doelplatform: QGIS 3.34+ en QGIS 4 (PyQGIS / GDAL, zonder externe Python-pakkett
 - AHN WCS: <https://service.pdok.nl/rws/ahn/wcs/v1_0> — `dsm_05m`, OGC WCS 2.0.1.
 - 3DBAG wordt **niet** benaderd. Dit is een nieuwe, zelfstandige benadering; er wordt geen code uit de Techbase-plugin of 3DBAG-implementatie gekopieerd.
 
+## Bijna even hoge platte daken en carports (0.6.0)
+
+Bij een specifiek laagbouwpatroon combineert de plugin nu de kleine dakstappen in AHN DSM met BAG-verblijfsobjectpunten, hoogte boven AHN DTM en een duidelijk ingesneden pandvorm. Alleen als al deze bewijzen samenpassen, worden de afzonderlijke dakdelen gebruikt voor de contactcontrole. De nieuwe regel wordt niet toegepast op iedere vlakke kap of iedere rijwoning. Het extra veld `Woonbewijs` maakt deze indicatieve beoordeling zichtbaar. Zonder voldoende bewijs blijft de bestaande analyse actief.
+
+**De appartementregel blijft ongewijzigd:** meer dan één verblijfsobject in een woonpand blijft `appartement`, ook als het registerfeit vermoedelijk niet de werkelijke woningsplitsing beschrijft. De plugin corrigeert de BAG niet en maakt geen verzonnen woninggrenzen.
+
+Live getest op het blok aan Esperenkamp/Florencelaan uit het vierde screenshot: twaalf panden vrijstaand en één pand met twee VBO's als appartement. Een nabije echte rij van tien woningen blijft twee hoekwoningen en acht tussenwoningen. De eerdere 27 screenshotpanden blijven correct. De extra 23 echte BAG-panden, VBO-punten, DSM- en DTM-tegels en checksums staan in `qgis_tests/data_flat`, met tests in `qgis_tests/flat_regression.py`.
+
+Deze aanvullende regel is indicatief. Ook de controles met rijwoningen bewijzen niet dat iedere andere laagbouwvariant in Nederland correct wordt herkend. Zie de grenzen in [VALIDATION.md](VALIDATION.md).
+
 ## Gevalideerd met echte BAG en AHN (0.5.0)
 
 De drie aangeleverde screenshots zijn gematcht op de werkelijke BAG-contouren in Eindhoven. Op 3 november 2026 zijn BAG WFS en twaalf originele AHN DSM-tegels opnieuw opgehaald. De volledige Processing-verwerking via live PDOK WFS geeft voor alle 27 betrokken woningen de gevraagde indeling: geval 1 vier twee-onder-een-kap en één vrijstaand; geval 2 vier vrijstaand; geval 3 achttien twee-onder-een-kap. Het betreft echte gemeten hoogten, geen gesimuleerde rasters.

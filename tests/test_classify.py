@@ -17,6 +17,11 @@ class WoningtypeTests(unittest.TestCase):
         result = classify_pands(pands, {}, source="BAG")
         self.assertEqual([r["woningtype"] for r in result], [VRIJ, APPARTEMENT])
 
+    def test_bag_appartement_blijft_bij_aanvullend_dakbewijs(self):
+        records = [dict(self._home(2), flat_roof_evidence=True), self._home()]
+        result = classify_pands(records, {0: {1}, 1: {0}}, {(0, 1): "bijgebouw"})
+        self.assertEqual([r["woningtype"] for r in result], [APPARTEMENT, VRIJ])
+
     def test_twee_onder_een_kap(self):
         pands = [self._home(), self._home()]
         adjacency = {0: {1}, 1: {0}}

@@ -1,0 +1,36 @@
+{
+  "captured_utc": "2026-11-03T10:32:36.299176+00:00",
+  "bag_source": "https://service.pdok.nl/kadaster/bag/wfs/v2_0",
+  "vbo_source": "https://api.pdok.nl/kadaster/bag/ogc/v2/collections/verblijfsobject/items",
+  "vbo_bbox_rd": [
+    162600,
+    388465,
+    162730,
+    388520
+  ],
+  "ahn_source": "https://service.pdok.nl/rws/ahn/wcs/v1_0",
+  "coverages": [
+    "dsm_05m",
+    "dtm_05m"
+  ],
+  "files": {
+    "bag.geojson": "383f5cccc3bfb53ade80c8ac19cdcdf1628a8e381476df123f61e1c810759271",
+    "expected.json": "0aafb32e54ea3f2558ebc60a479b9110568642a7019b22fedfa6df46dc1f69c9",
+    "vbo.geojson": "9d27230a449929627974df6ffd5b4b87ac08f5b14b0805923d4f2896d16d67eb",
+    "ahn/dsm_2537_6069.tif": "14fcddda41d749fee63997dcda1d930aaa2b6c27f4eaeff00cb442b7f65fee83",
+    "ahn/dsm_2538_6069.tif": "1fe3d43a8cadd19a777cc082c25976bb8dc5237f0556d540be76d55cfefd6e02",
+    "ahn/dsm_2539_6069.tif": "a09090826d360d0026f5e28901af44bf8840226a0d6d7db020edf3ba02ef9b23",
+    "ahn/dsm_2540_6069.tif": "37feee96b9bacb252d2bf381f170ad83991688dabc56684e727983638ef93b2a",
+    "ahn/dsm_2540_6070.tif": "636d2403a04da8825956687f44eced4f2b9bb051a432e1ee4b8fa83357897ecd",
+    "ahn/dsm_2541_6069.tif": "6a056eb52e53cf96c407dee3c580b4df0602a9eccd356e7ab8d2e31449c29619",
+    "ahn/dsm_2541_6070.tif": "7e99a759a9721f8bf823aa527c02178435426cea47b177cf5ac0d73485a3da52",
+    "ahn/dsm_2542_6069.tif": "caeb670842362c169aa3aede08df28ee583f8632f9d861f19635c1a6a0e880e0",
+    "ahn/dsm_2542_6070.tif": "4bc957209852e76b4349996f35d0c17610394ffc3cc920c0bdc6bee41b82ae76",
+    "ground/dtm_2540_6069.tif": "cc5a893c22d5da4988b7be3562d8354195e0aa7f400a9f5852718ed35b08d55b",
+    "ground/dtm_2540_6070.tif": "aecf451ca99673a194fe6cb5f4002d7b8d82339fd206d4fb97720ec4f25ac9d1",
+    "ground/dtm_2541_6069.tif": "7f333b6fa8883e6d5ddb7e45ae4bbe3ae5a1ef13033be006f0de1b69cb610005",
+    "ground/dtm_2541_6070.tif": "76dacd11ea7d970f542d7fc723c56301705803286653bc6a3d97d284f2d3255d",
+    "ground/dtm_2542_6069.tif": "79f91aafb1d26b9888a0fbdb7264d8d5624af8923464ee7345be12d0f283ae21",
+    "ground/dtm_2542_6070.tif": "0ef1b0ad17d4ba1aa0a4db806e7d6b883c34c0afdab651df9879d55c075f0525"
+  }
+}
