@@ -29,7 +29,7 @@ Gebruikte categorieën (compatibel met Techbase LS Netontwerp): `vrijstaande won
 1. Start in QGIS de knop **Woningtype 3D-bagloos**. Kies het huidige kaartvenster, een eigen gebied of heel Nederland.
 2. De plugin leest alleen BAG-panden in het gebied plus een smalle buurbuffer, en herkent appartementen via woonfunctie + aantal VBO's.
 3. Een lokale ruimtelijke index bepaalt welke pandcontouren werkelijk aangrenzen (standaard maximaal 0,20 m afstand).
-4. **Uitsluitend voor aangrenzende woonpanden** vraagt de plugin beperkte AHN DSM-rastertegels op. Van gedeelde gevels worden hoogten kort binnen beide panden vergeleken. Hiermee kan een schijnbaar aansluitende lage carport / aanbouw worden onderscheiden van waarschijnlijk doorlopende dakvlakken.
+4. **Uitsluitend voor aangrenzende woonpanden** vraagt de plugin beperkte AHN DSM-rastertegels op. Met een ruimtelijk steekproefgrid wordt eerst het **hogere hoofddak van het complete BAG-pand** bepaald (robuust 80e percentiel, geen willekeurige hoogste pixel). Daarna vergelijkt de plugin dat met de dakhoogtes langs de gedeelde pandgrens en verder naar binnen. Een lage garage/carport die twee hoofdgebouwen verbindt, telt dan niet mee als doorlopende hoofdgebouwverbinding. Dit voorkomt dat twee paren twee-onder-een-kapwoningen door hun garages als rijtjeshuizen worden gezien.
 5. DSM-GeoTIFF-tegels worden hergebruikt uit een permanente lokale cache onder de gebruikersmap. Zonder netwerk kan **Alleen lokaal opgeslagen AHN gebruiken** aan. Als hoogten ontbreken of te twijfelachtig zijn, blijven BAG-pandrelaties leidend en wordt een controle-indicator gezet.
 6. Het resultaat kan als GeoPackage worden opgeslagen en op BAG-identificatie of locatie gekoppeld aan Techbase LS Netontwerp. De plugin **wijzigt geen ontwerpstroomregels**.
 
@@ -44,6 +44,10 @@ Doelplatform: QGIS 3.34+ en QGIS 4 (PyQGIS / GDAL, zonder externe Python-pakkett
 - BAG WFS: <https://service.pdok.nl/kadaster/bag/wfs/v2_0>
 - AHN WCS: <https://service.pdok.nl/rws/ahn/wcs/v1_0> — `dsm_05m`, OGC WCS 2.0.1.
 - 3DBAG wordt **niet** benaderd. Dit is een nieuwe, zelfstandige benadering; er wordt geen code uit de Techbase-plugin of 3DBAG-implementatie gekopieerd.
+
+## Verbetering in 0.3.0: garages en carports
+
+De dakcontactcontrole kijkt nu niet alleen naar de hoogte bij een BAG-pandgrens maar vergelijkt deze met representatieve hoogtes verspreid over de hele pandcontour. Lage, aan elkaar gebouwde garages worden zo als aparte verbindingsbouw beoordeeld. Dat is een **benadering** van de dakvlakgedachte achter 3DBAG, maar geen automatische LoD2-dakreconstructie. Bij alleen BAG, uitgeschakelde AHN-controle of ontbrekende AHN-data kan de plugin garageverbindingen niet betrouwbaar onderscheiden; zie dan het veld `Controle`.
 
 ## Aandachtspunten en betrouwbaarheid
 
