@@ -144,9 +144,10 @@ try:
     assert populated.dataProvider().addFeatures([feat])[0]
     project.addMapLayer(populated)
     project.addMapLayer(empty)
+    populated_id, empty_id = populated.id(), empty.id()
     WoningtypeBagloosPlugin._remove_empty_duplicate_results(initial)
-    assert project.mapLayer(populated.id()) is not None
-    assert project.mapLayer(empty.id()) is None
+    assert project.mapLayer(populated_id) is not None
+    assert project.mapLayer(empty_id) is None
     project.removeMapLayer(populated.id())
 
     # PostProcessor draait uitsluitend voor de aan QGIS te laden resultaatlaag.
