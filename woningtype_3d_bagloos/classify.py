@@ -146,6 +146,8 @@ def classify_pands(records, neighbours, roof_links=None, source="AHN"):
             quality = "BAG-geometrie; geen hoogtecontrole"
         elif not neighbours.get(i):
             quality = "geen aangrenzende BAG-panden"
+        elif record.get("home_review"):
+            quality = record["home_review"]
         elif uncertain:
             quality = "controle nodig: AHN-contact ontbreekt of is onzeker"
         elif record.get("home_evidence"):

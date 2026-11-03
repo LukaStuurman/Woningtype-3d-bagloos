@@ -34,7 +34,8 @@ def flat_candidate(geom, zones):
     values = list(zones.samples.values())
     low, middle, high = (quantile(values, q) for q in (.1, .5, .9))
     return (has_recesses(geom)
-            and .3 <= high-middle <= 1.0 and high-low <= 1.5)
+            and high-low <= 1.5
+            and (.3 <= high-middle <= 1.0 or .3 <= middle-low <= 1.0))
 
 
 def load_vbos(bounds, feedback, offline=False):
@@ -84,7 +85,10 @@ def refine_home(record, zones, anchors, ground):
     count = record["count_vbo"]
     if not 1 <= count <= 2 or len(anchors) != count:
         return False
-    high = quantile(list(zones.samples.values()), .9)
+    values = list(zones.samples.values())
+    high, middle = quantile(values, .9), quantile(values, .5)
+    dominant = high-middle < .3
+    threshold = middle-.2 if dominant else high-.15
     # AHN DTM masks buildings. Use actual terrain samples outside the footprint,
     # including courtyards, rather than requiring terrain underneath a roof.
     box = record["geom"].boundingBox()
@@ -102,7 +106,17 @@ def refine_home(record, zones, anchors, ground):
     if (len(terrain) < 6 or quantile(terrain, .9)-quantile(terrain, .1) > 1
             or not 1.8 <= high-quantile(terrain, .5) <= 4.5):
         return False
-    remaining = {p for p, h in zones.samples.items() if h >= high-.15}
+    if dominant:
+        # A dominant flat main roof need not occupy the upper tail separately.
+        # Verify its level locally around each registered dwelling point, so a
+        # chimney/tree or a differently raised annex cannot set the reference.
+        for anchor in anchors:
+            local = [h for (x, y), h in zones.samples.items()
+                     if hypot(zones.origin[0]+(x+.5)*zones.spacing-anchor.x(),
+                              zones.origin[1]+(y+.5)*zones.spacing-anchor.y()) <= 2]
+            if len(local) < 12 or abs(quantile(local, .5)-middle) > .2:
+                return False
+    remaining = {p for p, h in zones.samples.items() if h >= threshold}
     components = []
     while remaining:
         seed = remaining.pop()
@@ -132,10 +146,16 @@ def refine_home(record, zones, anchors, ground):
         # separation. Require genuinely separated, independently anchored roofs.
         if hypot(anchors[0].x()-anchors[1].x(), anchors[0].y()-anchors[1].y()) < 8:
             return False
-    zones.threshold = high-.15
+    if dominant and len(set().union(*components)) < .4*len(zones.samples):
+        return False
+    zones.threshold = threshold
     zones.main = set().union(*components)
+    record.pop("home_review", None)
     record["flat_roof_evidence"] = True
-    record["home_evidence"] = "indicatieve dakdelen: VBO + AHN DSM/DTM; BAG-aantal VBO behouden"
+    record["home_evidence"] = (
+        "indicatief dominant vlak woondak: VBO + AHN DSM/DTM; BAG-aantal VBO behouden"
+        if dominant else "indicatieve dakdelen: VBO + AHN DSM/DTM; BAG-aantal VBO behouden"
+    )
     return True
 
 
@@ -148,6 +168,8 @@ def prepare_homes(records, roof, feedback, offline=False, vbo_data=None, ground=
                   and flat_candidate(r["geom"], roof.roof_zones(r["geom"]))]
     if not candidates:
         return
+    for r in candidates:
+        r["home_review"] = "controle nodig: vlakke dakdelen; VBO/maaiveldbewijs ontbreekt of past niet"
     box = QgsRectangle()
     for r in candidates:
         box.combineExtentWith(r["geom"].boundingBox())

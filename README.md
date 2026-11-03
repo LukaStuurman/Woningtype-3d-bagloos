@@ -51,6 +51,14 @@ Doelplatform: QGIS 3.34+ en QGIS 4 (PyQGIS / GDAL, zonder externe Python-pakkett
 - AHN WCS: <https://service.pdok.nl/rws/ahn/wcs/v1_0> — `dsm_05m`, OGC WCS 2.0.1.
 - 3DBAG wordt **niet** benaderd. Dit is een nieuwe, zelfstandige benadering; er wordt geen code uit de Techbase-plugin of 3DBAG-implementatie gekopieerd.
 
+## Brede lage woondaken met iets lagere garages (0.8.0)
+
+De laagbouwcontrole herkent nu ook een breed, vrijwel vlak woondak dat het grootste deel van de BAG-contour beslaat. De vorige aanvullende regel zocht vooral een kleiner verhoogd dakdeel. Nu kan ook een robuust lager garageplateau worden gescheiden van het brede woondak, mits de woningpunten, hoogte boven maaiveld, ingesneden contour, voldoende dakoppervlak en een stabiele lokale dakhoogte samen het onderscheid ondersteunen. Kleine hoogteverschillen worden dus niet automatisch als losse woningen uitgelegd.
+
+Live gevalideerd aan **Zoekant**: 8+10 en 14+16 zijn twee-onder-een-kap; 12 en 18 zijn vrijstaand. De veertien andere panden uit het directe testgebied behouden hun indeling, net als alle honderd eerdere controlepanden. Ook één gestylede resultaatlaag, de appartementregel en QGIS 3/4 worden opnieuw getest. De originele BAG/VBO/DSM/DTM-snapshots staan in `qgis_tests/data_low`; de test is `qgis_tests/low_regression.py`.
+
+Als het aanvullende VBO- of maaiveldbewijs ontbreekt of niet bij het dakpatroon past, blijft de normale berekening gelden en verschijnt een melding dat controle nodig is in `Controle`. Het veld `Woonbewijs` geeft aan wanneer de aanvullende dakregel wel is onderbouwd. De BAG-only-modus kan dit dakonderscheid niet maken; gebruik daarvoor de AHN-modus.
+
 ## Lage aansluitingen tussen steile kappen en hogere garages (0.7.0)
 
 De dakcontrole volgt nu ook een profiel vanaf de woningscheiding naar binnen. Twee steile hoofdkappen kunnen laag tegen elkaar aansluiten: een onmiddellijk en geleidelijk stijgend profiel naar beide hoofddakzones bewijst dan een hoofdcontact. Een lager garagevlak met pas verderop een stap naar het hoofddak voldoet daar niet aan. De hoge dakzones zijn aangescherpt zodat een hoger garagedak niet automatisch hoofdvolume wordt. Direct gemeten lage rasterwaarden blijven bruikbaar als de dichtstbijzijnde cel van het footprintgrid ontbreekt.

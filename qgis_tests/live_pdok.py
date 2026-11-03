@@ -14,7 +14,8 @@ provider=WoningtypeBagloosProvider();QgsApplication.processingRegistry().addProv
 expected=json.loads((root/'qgis_tests/data/expected.json').read_text())
 expected.update(json.loads((root/'qgis_tests/data_flat/expected.json').read_text()))
 expected.update(json.loads((root/'qgis_tests/data_pairs/expected.json').read_text()))
-regions={'case1':(162273,388284,162322,388304),'case2':(162286,388402,162326,388421),'case3':(162543,388378,162601,388457),'flat':(162615,388470,162720,388513),'row':(162435,388445,162500,388458),'koppele':(162254,388150,162320,388181),'goudrenet':(162320,387925,162510,387975),'sterappel':(162300,387765,162510,387820)}
+expected.update(json.loads((root/'qgis_tests/data_low/expected.json').read_text()))
+regions={'case1':(162273,388284,162322,388304),'case2':(162286,388402,162326,388421),'case3':(162543,388378,162601,388457),'flat':(162615,388470,162720,388513),'row':(162435,388445,162500,388458),'koppele':(162254,388150,162320,388181),'goudrenet':(162320,387925,162510,387975),'sterappel':(162300,387765,162510,387820),'zoekant':(162165,388175,162250,388265)}
 results={}
 for case,bounds in regions.items():
  project=QgsProject.instance();before=set(project.mapLayers());context=QgsProcessingContext();context.setProject(project)
@@ -37,7 +38,7 @@ for case,bounds in regions.items():
  layer.saveNamedStyle(str(OUT/(case+'.qml')))
  project.removeMapLayer(layer.id())
 (OUT/'live_validation.json').write_text(json.dumps({'qgis':Qgis.QGIS_VERSION,'source':'LIVE PDOK WFS + real AHN WCS/cache','cases':results},indent=2))
-print('LIVE 100/100 OK',flush=True)
+print('LIVE 120/120 OK',flush=True)
 QgsProject.instance().clear()
 app.exitQgis()
 

@@ -1,3 +1,4 @@
 /qgis_tests/data/** -text
 /qgis_tests/data_flat/** -text
 /qgis_tests/data_pairs/** -text
+/qgis_tests/data_low/** -text

@@ -1,0 +1,39 @@
+{
+  "captured_utc": "2026-11-03T12:11:15.400361+00:00",
+  "bag_source": "https://service.pdok.nl/kadaster/bag/wfs/v2_0",
+  "bag_bbox_rd": [
+    162100,
+    387700,
+    162750,
+    388270
+  ],
+  "vbo_source": "https://api.pdok.nl/kadaster/bag/ogc/v2/collections/verblijfsobject/items",
+  "vbo_bbox_rd": [
+    162165,
+    388175,
+    162250,
+    388265
+  ],
+  "ahn_source": "https://service.pdok.nl/rws/ahn/wcs/v1_0",
+  "coverages": [
+    "dsm_05m",
+    "dtm_05m"
+  ],
+  "files": {
+    "bag.geojson": "a7b95921eafeda9dc83a65de1c8bddf704f694b76006e25eeb8f7f484bd0a9bd",
+    "expected.json": "686eb5af49a288ff698adce2b2d6c492488d949cd45356848b20ccb350f1c461",
+    "vbo.geojson": "479f4a1449e154c5d0feac10b60b665540bfa1b40c5618f361e63181ae3d8d84",
+    "ahn/dsm_2533_6065.tif": "e14b7cc55023b135f5cdf4a18347bb415bfa08ec54eddacf265e23c5f29512fc",
+    "ahn/dsm_2533_6066.tif": "f3771e1e958d6fcdef17e410043777be5f8a96c8eb6742b3c079d76156f19f4d",
+    "ahn/dsm_2534_6065.tif": "57d5d5a94fae9b007672098a3266deff57cbf043414eeba5d630c700aa2e0325",
+    "ahn/dsm_2534_6066.tif": "46e2afd2de8abed731dcf8c19f715646104be2db7e144cdb74eb19ac00abbac9",
+    "ahn/dsm_2535_6065.tif": "91a6a2cc66757814b08cecd245f825589452ffd65f35172aa0854c8712118181",
+    "ahn/dsm_2535_6066.tif": "cd8295a0f2c82ef0ce6f9543a13965244ff3aebdf8c1159dcfbd0d1312d0185a",
+    "ground/dtm_2533_6065.tif": "f4393d137a7be1c3e5301ab8a53561342e93f9ad5ecf7080d69e07797fb4e3de",
+    "ground/dtm_2533_6066.tif": "cffb4cc1d92c163992667161ea94144cb1633db58c658d8ca9873602ba1511f5",
+    "ground/dtm_2534_6065.tif": "4310ed03508834c5dd13557ec404893abc66a50951b75cef93056a072b5136ee",
+    "ground/dtm_2534_6066.tif": "53ecba2c30f1c7f0fc24032b5e3b0b6a2ba71ac94b8b021f44ef6f3a3d711307",
+    "ground/dtm_2535_6065.tif": "14252d792738601e0cff54e3030a752aa012fd3885a39485197acf4167707eae",
+    "ground/dtm_2535_6066.tif": "caa0a900c6dbdffedcbe64e85c3c413ae8b6d6111671b61b396fd654e43085e6"
+  }
+}

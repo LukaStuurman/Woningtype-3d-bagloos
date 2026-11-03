@@ -1,0 +1,122 @@
+{
+  "0772100000335042": {
+    "case": "zoekant",
+    "woningtype": "vrijstaande woning",
+    "peer": null,
+    "focus": true
+  },
+  "0772100000335043": {
+    "case": "zoekant",
+    "woningtype": "twee-onder-een-kap",
+    "peer": "0772100000900420",
+    "focus": true
+  },
+  "0772100000335086": {
+    "case": "zoekant",
+    "woningtype": "twee-onder-een-kap",
+    "peer": "0772100000335087",
+    "focus": false
+  },
+  "0772100000335087": {
+    "case": "zoekant",
+    "woningtype": "twee-onder-een-kap",
+    "peer": "0772100000335086",
+    "focus": false
+  },
+  "0772100000335088": {
+    "case": "zoekant",
+    "woningtype": "twee-onder-een-kap",
+    "peer": "0772100000335089",
+    "focus": false
+  },
+  "0772100000335089": {
+    "case": "zoekant",
+    "woningtype": "twee-onder-een-kap",
+    "peer": "0772100000335088",
+    "focus": false
+  },
+  "0772100000335653": {
+    "case": "zoekant",
+    "woningtype": "twee-onder-een-kap",
+    "peer": "0772100000335654",
+    "focus": false
+  },
+  "0772100000335654": {
+    "case": "zoekant",
+    "woningtype": "twee-onder-een-kap",
+    "peer": "0772100000335653",
+    "focus": false
+  },
+  "0772100000335655": {
+    "case": "zoekant",
+    "woningtype": "vrijstaande woning",
+    "peer": null,
+    "focus": false
+  },
+  "0772100000335656": {
+    "case": "zoekant",
+    "woningtype": "twee-onder-een-kap",
+    "peer": "0772100000335657",
+    "focus": false
+  },
+  "0772100000335657": {
+    "case": "zoekant",
+    "woningtype": "twee-onder-een-kap",
+    "peer": "0772100000335656",
+    "focus": false
+  },
+  "0772100000335658": {
+    "case": "zoekant",
+    "woningtype": "twee-onder-een-kap",
+    "peer": "0772100000335564",
+    "focus": true
+  },
+  "0772100000335764": {
+    "case": "zoekant",
+    "woningtype": "twee-onder-een-kap",
+    "peer": "0772100000335765",
+    "focus": false
+  },
+  "0772100000335765": {
+    "case": "zoekant",
+    "woningtype": "twee-onder-een-kap",
+    "peer": "0772100000335764",
+    "focus": false
+  },
+  "0772100000335766": {
+    "case": "zoekant",
+    "woningtype": "vrijstaande woning",
+    "peer": null,
+    "focus": false
+  },
+  "0772100000335767": {
+    "case": "zoekant",
+    "woningtype": "twee-onder-een-kap",
+    "peer": "0772100000335768",
+    "focus": false
+  },
+  "0772100000335768": {
+    "case": "zoekant",
+    "woningtype": "twee-onder-een-kap",
+    "peer": "0772100000335767",
+    "focus": false
+  },
+  "0772100000335564": {
+    "case": "zoekant",
+    "woningtype": "twee-onder-een-kap",
+    "peer": "0772100000335658",
+    "focus": true
+  },
+  "0772100000900420": {
+    "case": "zoekant",
+    "woningtype": "twee-onder-een-kap",
+    "peer": "0772100000335043",
+    "focus": true
+  },
+  "0772100000950142": {
+    "case": "zoekant",
+    "woningtype": "vrijstaande woning",
+    "peer": null,
+    "focus": true
+  }
+}

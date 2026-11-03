@@ -1,0 +1,1467 @@
+{
+  "type": "FeatureCollection",
+  "crs": {
+    "type": "name",
+    "properties": {
+      "name": "urn:ogc:def:crs:EPSG::28992"
+    }
+  },
+  "features": [
+    {
+      "type": "Feature",
+      "id": "pand.1348f0a3-30a5-47d9-ba30-20e61ee91b1a",
+      "properties": {
+        "identificatie": "0772100000335042",
+        "rdf_seealso": "http://bag.basisregistraties.overheid.nl/bag/id/pand/0772100000335042",
+        "bouwjaar": 1988,
+        "status": "Pand in gebruik",
+        "gebruiksdoel": "woonfunctie",
+        "oppervlakte_min": 125,
+        "oppervlakte_max": 125,
+        "aantal_verblijfsobjecten": 1
+      },
+      "bbox": [
+        162161.095,
+        388173.869,
+        162178.289,
+        388186.906
+      ],
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              162170.01,
+              388186.629
+            ],
+            [
+              162161.273,
+              388186.906
+            ],
+            [
+              162161.253,
+              388186.289
+            ],
+            [
+              162161.095,
+              388181.291
+            ],
+            [
+              162172.102,
+              388180.942
+            ],
+            [
+              162171.884,
+              388174.06
+            ],
+            [
+              162177.893,
+              388173.869
+            ],
+            [
+              162178.289,
+              388186.379
+            ],
+            [
+              162177.566,
+              388186.402
+            ],
+            [
+              162170.01,
+              388186.629
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "pand.97d25141-ccce-478a-8b19-09c77742f870",
+      "properties": {
+        "identificatie": "0772100000335043",
+        "rdf_seealso": "http://bag.basisregistraties.overheid.nl/bag/id/pand/0772100000335043",
+        "bouwjaar": 1988,
+        "status": "Pand in gebruik",
+        "gebruiksdoel": "woonfunctie",
+        "oppervlakte_min": 184,
+        "oppervlakte_max": 184,
+        "aantal_verblijfsobjecten": 1
+      },
+      "bbox": [
+        162163.96,
+        388201.851,
+        162184.853,
+        388218.078
+      ],
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              162163.96,
+              388202.542
+            ],
+            [
+              162182.005,
+              388201.929
+            ],
+            [
+              162184.456,
+              388201.851
+            ],
+            [
+              162184.853,
+              388214.387
+            ],
+            [
+              162182.102,
+              388214.475
+            ],
+            [
+              162182.211,
+              388217.911
+            ],
+            [
+              162174.733,
+              388218.078
+            ],
+            [
+              162174.621,
+              388214.548
+            ],
+            [
+              162174.94,
+              388214.538
+            ],
+            [
+              162174.724,
+              388207.714
+            ],
+            [
+              162164.135,
+              388208.05
+            ],
+            [
+              162163.96,
+              388202.542
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "pand.28d8418e-ad6b-4a3d-b008-1552695465d3",
+      "properties": {
+        "identificatie": "0772100000335086",
+        "rdf_seealso": "http://bag.basisregistraties.overheid.nl/bag/id/pand/0772100000335086",
+        "bouwjaar": 1988,
+        "status": "Pand in gebruik",
+        "gebruiksdoel": "woonfunctie",
+        "oppervlakte_min": 169,
+        "oppervlakte_max": 169,
+        "aantal_verblijfsobjecten": 1
+      },
+      "bbox": [
+        162203.807,
+        388239.701,
+        162217.729,
+        388253.177
+      ],
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              162217.729,
+              388253.009
+            ],
+            [
+              162211.462,
+              388253.177
+            ],
+            [
+              162211.378,
+              388250.0
+            ],
+            [
+              162211.367,
+              388249.592
+            ],
+            [
+              162204.074,
+              388249.786
+            ],
+            [
+              162203.807,
+              388239.792
+            ],
+            [
+              162207.23,
+              388239.701
+            ],
+            [
+              162207.325,
+              388243.257
+            ],
+            [
+              162214.931,
+              388243.054
+            ],
+            [
+              162214.875,
+              388240.981
+            ],
+            [
+              162217.406,
+              388240.913
+            ],
+            [
+              162217.649,
+              388250.0
+            ],
+            [
+              162217.729,
+              388253.009
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "pand.abaa3c3b-e663-4675-b7ae-cc53ab62a911",
+      "properties": {
+        "identificatie": "0772100000335087",
+        "rdf_seealso": "http://bag.basisregistraties.overheid.nl/bag/id/pand/0772100000335087",
+        "bouwjaar": 1988,
+        "status": "Pand in gebruik",
+        "gebruiksdoel": "woonfunctie",
+        "oppervlakte_min": 140,
+        "oppervlakte_max": 140,
+        "aantal_verblijfsobjecten": 1
+      },
+      "bbox": [
+        162217.406,
+        388240.846,
+        162226.589,
+        388253.009
+      ],
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              162217.729,
+              388253.009
+            ],
+            [
+              162217.649,
+              388250.0
+            ],
+            [
+              162217.406,
+              388240.913
+            ],
+            [
+              162219.937,
+              388240.846
+            ],
+            [
+              162219.993,
+              388242.947
+            ],
+            [
+              162226.42,
+              388242.853
+            ],
+            [
+              162226.589,
+              388249.158
+            ],
+            [
+              162223.779,
+              388249.233
+            ],
+            [
+              162223.799,
+              388250.0
+            ],
+            [
+              162223.875,
+              388252.845
+            ],
+            [
+              162217.729,
+              388253.009
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "pand.4a4cc32c-d6a3-4363-b549-cad8ec63bda6",
+      "properties": {
+        "identificatie": "0772100000335088",
+        "rdf_seealso": "http://bag.basisregistraties.overheid.nl/bag/id/pand/0772100000335088",
+        "bouwjaar": 1988,
+        "status": "Pand in gebruik",
+        "gebruiksdoel": "woonfunctie",
+        "oppervlakte_min": 140,
+        "oppervlakte_max": 140,
+        "aantal_verblijfsobjecten": 1
+      },
+      "bbox": [
+        162226.42,
+        388240.46,
+        162235.729,
+        388252.686
+      ],
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              162226.589,
+              388249.158
+            ],
+            [
+              162226.42,
+              388242.853
+            ],
+            [
+              162229.264,
+              388242.812
+            ],
+            [
+              162229.261,
+              388242.697
+            ],
+            [
+              162232.907,
+              388242.599
+            ],
+            [
+              162232.91,
+              388240.527
+            ],
+            [
+              162235.409,
+              388240.46
+            ],
+            [
+              162235.662,
+              388250.0
+            ],
+            [
+              162235.729,
+              388252.52
+            ],
+            [
+              162229.496,
+              388252.686
+            ],
+            [
+              162229.424,
+              388250.0
+            ],
+            [
+              162229.4,
+              388249.083
+            ],
+            [
+              162226.589,
+              388249.158
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "pand.6b2c7e30-9dce-43f3-92e8-cc21273bfa4a",
+      "properties": {
+        "identificatie": "0772100000335089",
+        "rdf_seealso": "http://bag.basisregistraties.overheid.nl/bag/id/pand/0772100000335089",
+        "bouwjaar": 1988,
+        "status": "Pand in gebruik",
+        "gebruiksdoel": "woonfunctie",
+        "oppervlakte_min": 156,
+        "oppervlakte_max": 156,
+        "aantal_verblijfsobjecten": 1
+      },
+      "bbox": [
+        162235.409,
+        388240.394,
+        162247.628,
+        388252.52
+      ],
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              162235.729,
+              388252.52
+            ],
+            [
+              162235.662,
+              388250.0
+            ],
+            [
+              162235.409,
+              388240.46
+            ],
+            [
+              162237.908,
+              388240.394
+            ],
+            [
+              162237.963,
+              388242.483
+            ],
+            [
+              162247.462,
+              388242.337
+            ],
+            [
+              162247.628,
+              388248.576
+            ],
+            [
+              162241.735,
+              388248.733
+            ],
+            [
+              162241.769,
+              388250.0
+            ],
+            [
+              162241.832,
+              388252.357
+            ],
+            [
+              162235.729,
+              388252.52
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "pand.1d7dd7c3-46e3-4b34-8892-60dc9a4fe3a2",
+      "properties": {
+        "identificatie": "0772100000335653",
+        "rdf_seealso": "http://bag.basisregistraties.overheid.nl/bag/id/pand/0772100000335653",
+        "bouwjaar": 1988,
+        "status": "Pand in gebruik",
+        "gebruiksdoel": "woonfunctie",
+        "oppervlakte_min": 140,
+        "oppervlakte_max": 140,
+        "aantal_verblijfsobjecten": 1
+      },
+      "bbox": [
+        162233.108,
+        388189.923,
+        162245.135,
+        388199.131
+      ],
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              162233.174,
+              388199.131
+            ],
+            [
+              162233.108,
+              388196.617
+            ],
+            [
+              162235.185,
+              388196.562
+            ],
+            [
+              162235.149,
+              388190.087
+            ],
+            [
+              162241.342,
+              388189.923
+            ],
+            [
+              162241.416,
+              388192.725
+            ],
+            [
+              162244.971,
+              388192.631
+            ],
+            [
+              162245.135,
+              388198.815
+            ],
+            [
+              162233.174,
+              388199.131
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "pand.efb60c7c-b195-4fb8-93ab-f6c67de327d5",
+      "properties": {
+        "identificatie": "0772100000335654",
+        "rdf_seealso": "http://bag.basisregistraties.overheid.nl/bag/id/pand/0772100000335654",
+        "bouwjaar": 1988,
+        "status": "Pand in gebruik",
+        "gebruiksdoel": "woonfunctie",
+        "oppervlakte_min": 140,
+        "oppervlakte_max": 140,
+        "aantal_verblijfsobjecten": 1
+      },
+      "bbox": [
+        162233.174,
+        388198.815,
+        162245.299,
+        388208.057
+      ],
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              162233.174,
+              388199.131
+            ],
+            [
+              162245.135,
+              388198.815
+            ],
+            [
+              162245.299,
+              388205.032
+            ],
+            [
+              162241.746,
+              388205.126
+            ],
+            [
+              162241.819,
+              388207.89
+            ],
+            [
+              162235.533,
+              388208.057
+            ],
+            [
+              162235.492,
+              388205.147
+            ],
+            [
+              162235.378,
+              388205.15
+            ],
+            [
+              162235.283,
+              388201.591
+            ],
+            [
+              162233.241,
+              388201.645
+            ],
+            [
+              162233.174,
+              388199.131
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "pand.b9bebc8e-404d-4d79-89a4-69149d7edb86",
+      "properties": {
+        "identificatie": "0772100000335655",
+        "rdf_seealso": "http://bag.basisregistraties.overheid.nl/bag/id/pand/0772100000335655",
+        "bouwjaar": 1988,
+        "status": "Pand in gebruik",
+        "gebruiksdoel": "woonfunctie",
+        "oppervlakte_min": 140,
+        "oppervlakte_max": 140,
+        "aantal_verblijfsobjecten": 1
+      },
+      "bbox": [
+        162233.545,
+        388207.89,
+        162245.661,
+        388217.262
+      ],
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              162235.533,
+              388208.057
+            ],
+            [
+              162241.819,
+              388207.89
+            ],
+            [
+              162241.893,
+              388210.655
+            ],
+            [
+              162245.492,
+              388210.56
+            ],
+            [
+              162245.661,
+              388216.931
+            ],
+            [
+              162242.049,
+              388217.026
+            ],
+            [
+              162235.78,
+              388217.204
+            ],
+            [
+              162233.615,
+              388217.262
+            ],
+            [
+              162233.545,
+              388214.618
+            ],
+            [
+              162235.626,
+              388214.563
+            ],
+            [
+              162235.533,
+              388208.057
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "pand.46585b05-70d2-4057-8449-6791ad8cbcb2",
+      "properties": {
+        "identificatie": "0772100000335656",
+        "rdf_seealso": "http://bag.basisregistraties.overheid.nl/bag/id/pand/0772100000335656",
+        "bouwjaar": 1988,
+        "status": "Pand in gebruik",
+        "gebruiksdoel": "woonfunctie",
+        "oppervlakte_min": 140,
+        "oppervlakte_max": 140,
+        "aantal_verblijfsobjecten": 1
+      },
+      "bbox": [
+        162233.745,
+        388217.026,
+        162245.874,
+        388226.22
+      ],
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              162235.78,
+              388217.204
+            ],
+            [
+              162242.049,
+              388217.026
+            ],
+            [
+              162242.124,
+              388219.854
+            ],
+            [
+              162245.711,
+              388219.759
+            ],
+            [
+              162245.874,
+              388225.902
+            ],
+            [
+              162233.811,
+              388226.22
+            ],
+            [
+              162233.745,
+              388223.723
+            ],
+            [
+              162235.835,
+              388223.667
+            ],
+            [
+              162235.78,
+              388217.204
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "pand.69f241e4-3239-4b8f-a127-8494ec1fbd6d",
+      "properties": {
+        "identificatie": "0772100000335657",
+        "rdf_seealso": "http://bag.basisregistraties.overheid.nl/bag/id/pand/0772100000335657",
+        "bouwjaar": 1988,
+        "status": "Pand in gebruik",
+        "gebruiksdoel": "woonfunctie",
+        "oppervlakte_min": 140,
+        "oppervlakte_max": 140,
+        "aantal_verblijfsobjecten": 1
+      },
+      "bbox": [
+        162233.811,
+        388225.902,
+        162246.039,
+        388235.211
+      ],
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              162233.811,
+              388226.22
+            ],
+            [
+              162245.874,
+              388225.902
+            ],
+            [
+              162246.039,
+              388232.128
+            ],
+            [
+              162242.439,
+              388232.224
+            ],
+            [
+              162242.514,
+              388235.045
+            ],
+            [
+              162237.516,
+              388235.178
+            ],
+            [
+              162236.257,
+              388235.211
+            ],
+            [
+              162235.958,
+              388228.663
+            ],
+            [
+              162233.877,
+              388228.718
+            ],
+            [
+              162233.811,
+              388226.22
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "pand.9ef837f9-dd63-44a6-89f1-7f5dfd7754eb",
+      "properties": {
+        "identificatie": "0772100000335658",
+        "rdf_seealso": "http://bag.basisregistraties.overheid.nl/bag/id/pand/0772100000335658",
+        "bouwjaar": 1988,
+        "status": "Pand in gebruik",
+        "gebruiksdoel": "woonfunctie",
+        "oppervlakte_min": 138,
+        "oppervlakte_max": 138,
+        "aantal_verblijfsobjecten": 1
+      },
+      "bbox": [
+        162177.679,
+        388249.15,
+        162198.353,
+        388261.641
+      ],
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              162177.679,
+              388249.707
+            ],
+            [
+              162198.002,
+              388249.15
+            ],
+            [
+              162198.026,
+              388250.0
+            ],
+            [
+              162198.353,
+              388261.469
+            ],
+            [
+              162193.356,
+              388261.612
+            ],
+            [
+              162192.327,
+              388261.641
+            ],
+            [
+              162192.133,
+              388254.815
+            ],
+            [
+              162177.836,
+              388255.223
+            ],
+            [
+              162177.687,
+              388250.0
+            ],
+            [
+              162177.679,
+              388249.707
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "pand.5c2dc7dd-12e2-4473-8da0-762841a2ef3d",
+      "properties": {
+        "identificatie": "0772100000335764",
+        "rdf_seealso": "http://bag.basisregistraties.overheid.nl/bag/id/pand/0772100000335764",
+        "bouwjaar": 1988,
+        "status": "Pand in gebruik",
+        "gebruiksdoel": "woonfunctie",
+        "oppervlakte_min": 147,
+        "oppervlakte_max": 147,
+        "aantal_verblijfsobjecten": 1
+      },
+      "bbox": [
+        162208.567,
+        388190.462,
+        162220.849,
+        388199.747
+      ],
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              162208.567,
+              388193.522
+            ],
+            [
+              162212.205,
+              388193.419
+            ],
+            [
+              162212.126,
+              388190.638
+            ],
+            [
+              162218.402,
+              388190.462
+            ],
+            [
+              162218.521,
+              388193.077
+            ],
+            [
+              162220.669,
+              388193.016
+            ],
+            [
+              162220.778,
+              388196.875
+            ],
+            [
+              162220.849,
+              388199.408
+            ],
+            [
+              162208.742,
+              388199.747
+            ],
+            [
+              162208.567,
+              388193.522
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "pand.7d24b754-8cf6-41e7-bd52-15e2c4789344",
+      "properties": {
+        "identificatie": "0772100000335765",
+        "rdf_seealso": "http://bag.basisregistraties.overheid.nl/bag/id/pand/0772100000335765",
+        "bouwjaar": 1988,
+        "status": "Pand in gebruik",
+        "gebruiksdoel": "woonfunctie",
+        "oppervlakte_min": 140,
+        "oppervlakte_max": 140,
+        "aantal_verblijfsobjecten": 1
+      },
+      "bbox": [
+        162208.742,
+        388199.408,
+        162220.92,
+        388208.617
+      ],
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              162208.742,
+              388199.747
+            ],
+            [
+              162220.849,
+              388199.408
+            ],
+            [
+              162220.92,
+              388201.941
+            ],
+            [
+              162218.791,
+              388202.001
+            ],
+            [
+              162218.86,
+              388208.519
+            ],
+            [
+              162215.366,
+              388208.617
+            ],
+            [
+              162212.568,
+              388208.567
+            ],
+            [
+              162212.49,
+              388205.827
+            ],
+            [
+              162208.916,
+              388205.928
+            ],
+            [
+              162208.742,
+              388199.747
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "pand.fb07e5d4-b4d0-4b36-aecf-1aa711651cfe",
+      "properties": {
+        "identificatie": "0772100000335766",
+        "rdf_seealso": "http://bag.basisregistraties.overheid.nl/bag/id/pand/0772100000335766",
+        "bouwjaar": 1988,
+        "status": "Pand in gebruik",
+        "gebruiksdoel": "woonfunctie",
+        "oppervlakte_min": 140,
+        "oppervlakte_max": 140,
+        "aantal_verblijfsobjecten": 1
+      },
+      "bbox": [
+        162205.541,
+        388208.567,
+        162217.77,
+        388217.964
+      ],
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              162212.568,
+              388208.567
+            ],
+            [
+              162215.366,
+              388208.617
+            ],
+            [
+              162215.648,
+              388215.037
+            ],
+            [
+              162217.695,
+              388214.979
+            ],
+            [
+              162217.77,
+              388217.655
+            ],
+            [
+              162215.639,
+              388217.715
+            ],
+            [
+              162209.362,
+              388217.862
+            ],
+            [
+              162206.19,
+              388217.951
+            ],
+            [
+              162205.72,
+              388217.964
+            ],
+            [
+              162205.541,
+              388211.618
+            ],
+            [
+              162209.129,
+              388211.517
+            ],
+            [
+              162209.049,
+              388208.666
+            ],
+            [
+              162212.568,
+              388208.567
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "pand.bb9ccb11-9f68-497b-92eb-eecd3fa54636",
+      "properties": {
+        "identificatie": "0772100000335767",
+        "rdf_seealso": "http://bag.basisregistraties.overheid.nl/bag/id/pand/0772100000335767",
+        "bouwjaar": 1988,
+        "status": "Pand in gebruik",
+        "gebruiksdoel": "woonfunctie",
+        "oppervlakte_min": 140,
+        "oppervlakte_max": 140,
+        "aantal_verblijfsobjecten": 1
+      },
+      "bbox": [
+        162205.809,
+        388217.715,
+        162218.002,
+        388226.955
+      ],
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              162209.362,
+              388217.862
+            ],
+            [
+              162215.639,
+              388217.715
+            ],
+            [
+              162215.94,
+              388224.147
+            ],
+            [
+              162217.931,
+              388224.091
+            ],
+            [
+              162218.002,
+              388226.614
+            ],
+            [
+              162205.985,
+              388226.955
+            ],
+            [
+              162205.809,
+              388220.722
+            ],
+            [
+              162206.279,
+              388220.709
+            ],
+            [
+              162209.44,
+              388220.62
+            ],
+            [
+              162209.362,
+              388217.862
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "pand.a764d396-af05-4bbd-a78b-65c0e88b8a73",
+      "properties": {
+        "identificatie": "0772100000335768",
+        "rdf_seealso": "http://bag.basisregistraties.overheid.nl/bag/id/pand/0772100000335768",
+        "bouwjaar": 1988,
+        "status": "Pand in gebruik",
+        "gebruiksdoel": "woonfunctie",
+        "oppervlakte_min": 140,
+        "oppervlakte_max": 140,
+        "aantal_verblijfsobjecten": 1
+      },
+      "bbox": [
+        162205.985,
+        388226.614,
+        162218.074,
+        388235.864
+      ],
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              162205.985,
+              388226.955
+            ],
+            [
+              162218.002,
+              388226.614
+            ],
+            [
+              162218.074,
+              388229.137
+            ],
+            [
+              162216.039,
+              388229.194
+            ],
+            [
+              162216.069,
+              388235.688
+            ],
+            [
+              162214.817,
+              388235.723
+            ],
+            [
+              162209.818,
+              388235.864
+            ],
+            [
+              162209.739,
+              388233.086
+            ],
+            [
+              162206.16,
+              388233.186
+            ],
+            [
+              162205.985,
+              388226.955
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "pand.ffaf44b0-ddec-4234-b2cc-ab28fbc2f5bf",
+      "properties": {
+        "identificatie": "0772100000335564",
+        "rdf_seealso": "http://bag.basisregistraties.overheid.nl/bag/id/pand/0772100000335564",
+        "bouwjaar": 1988,
+        "status": "Pand in gebruik",
+        "gebruiksdoel": "woonfunctie",
+        "oppervlakte_min": 184,
+        "oppervlakte_max": 184,
+        "aantal_verblijfsobjecten": 1
+      },
+      "bbox": [
+        162172.009,
+        388233.447,
+        162195.256,
+        388249.789
+      ],
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              162172.009,
+              388243.827
+            ],
+            [
+              162172.103,
+              388243.782
+            ],
+            [
+              162172.591,
+              388243.552
+            ],
+            [
+              162175.572,
+              388242.141
+            ],
+            [
+              162176.763,
+              388242.099
+            ],
+            [
+              162177.707,
+              388242.955
+            ],
+            [
+              162177.701,
+              388244.255
+            ],
+            [
+              162189.099,
+              388243.93
+            ],
+            [
+              162188.906,
+              388237.157
+            ],
+            [
+              162183.23,
+              388237.319
+            ],
+            [
+              162183.13,
+              388233.787
+            ],
+            [
+              162189.615,
+              388233.54
+            ],
+            [
+              162192.864,
+              388233.447
+            ],
+            [
+              162192.964,
+              388236.972
+            ],
+            [
+              162194.905,
+              388236.916
+            ],
+            [
+              162195.256,
+              388249.225
+            ],
+            [
+              162177.679,
+              388249.707
+            ],
+            [
+              162175.385,
+              388249.77
+            ],
+            [
+              162174.799,
+              388249.786
+            ],
+            [
+              162174.687,
+              388249.789
+            ],
+            [
+              162172.009,
+              388243.827
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "pand.d859b573-d7a2-40ab-b3cf-2c59d3fb7277",
+      "properties": {
+        "identificatie": "0772100000900420",
+        "rdf_seealso": "http://bag.basisregistraties.overheid.nl/bag/id/pand/0772100000900420",
+        "bouwjaar": 1985,
+        "status": "Pand in gebruik",
+        "gebruiksdoel": "woonfunctie",
+        "oppervlakte_min": 160,
+        "oppervlakte_max": 160,
+        "aantal_verblijfsobjecten": 1
+      },
+      "bbox": [
+        162163.788,
+        388186.402,
+        162182.005,
+        388202.542
+      ],
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              162170.01,
+              388186.629
+            ],
+            [
+              162177.566,
+              388186.402
+            ],
+            [
+              162177.674,
+              388189.827
+            ],
+            [
+              162181.617,
+              388189.702
+            ],
+            [
+              162182.005,
+              388201.929
+            ],
+            [
+              162163.96,
+              388202.542
+            ],
+            [
+              162163.788,
+              388197.112
+            ],
+            [
+              162175.823,
+              388196.73
+            ],
+            [
+              162175.609,
+              388189.983
+            ],
+            [
+              162170.122,
+              388190.157
+            ],
+            [
+              162170.01,
+              388186.629
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "pand.6c7debe0-95b9-4c44-9532-349d68ba6ed9",
+      "properties": {
+        "identificatie": "0772100000950142",
+        "rdf_seealso": "http://bag.basisregistraties.overheid.nl/bag/id/pand/0772100000950142",
+        "bouwjaar": 1985,
+        "status": "Pand in gebruik",
+        "gebruiksdoel": "woonfunctie",
+        "oppervlakte_min": 180,
+        "oppervlakte_max": 180,
+        "aantal_verblijfsobjecten": 1
+      },
+      "bbox": [
+        162168.964,
+        388217.911,
+        162189.615,
+        388234.186
+      ],
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              162174.733,
+              388218.078
+            ],
+            [
+              162182.211,
+              388217.911
+            ],
+            [
+              162182.319,
+              388221.336
+            ],
+            [
+              162183.262,
+              388221.309
+            ],
+            [
+              162189.261,
+              388221.138
+            ],
+            [
+              162189.615,
+              388233.54
+            ],
+            [
+              162183.13,
+              388233.787
+            ],
+            [
+              162169.125,
+              388234.186
+            ],
+            [
+              162168.964,
+              388228.559
+            ],
+            [
+              162180.356,
+              388228.234
+            ],
+            [
+              162180.165,
+              388221.52
+            ],
+            [
+              162177.326,
+              388221.61
+            ],
+            [
+              162174.847,
+              388221.689
+            ],
+            [
+              162174.733,
+              388218.078
+            ]
+          ]
+        ]
+      }
+    }
+  ]
+}

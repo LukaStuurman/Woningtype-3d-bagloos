@@ -170,3 +170,40 @@ Nieuwe originele BAG- en DSM-snapshots, bron-URL’s, querybbox en SHA-256: [dat
 `python qgis_tests/pair_regression.py` controleert alle 50 nieuwe panden, expliciet de juiste woningpartners, omgekeerde contactrichting/featurevolgorde en één automatisch gestylede geheugen- en GeoPackage-laag. De eerdere geografische suites blijven verplicht in dezelfde CI-matrix voor QGIS 3.34, 3.44.5 en 4.2.0.
 
 De live runner is uitgebreid met de drie nieuwe gebieden: `python qgis_tests/live_pdok.py <nieuwe-uitvoermap>`. Er is geen Computer Use gebruikt. De open QGIS-interface en heel Nederland zijn niet gevalideerd. Bij andere dakvormen, vegetatie of onvoldoende AHN-dekking blijft de indeling indicatief; 100 juiste gevallen zijn geen garantie voor elk pand in Nederland. De originele Techbase-plugin is ongemoeid gebleven.
+
+## Uitbreiding 0.8.0 — brede lage woondaken aan Zoekant
+
+De gebruiker heeft de interpretatie van de pijlen expliciet bevestigd: Zoekant 8+10 en 14+16 vormen twee-onder-een-kapparen; 12 en 18 zijn vrijstaand. De adressen zijn gekoppeld aan echte BAG-panden en VBO-punten, niet afgeleid uit een getekende testgeometrie.
+
+### Gemeten dakpatroon
+
+Het brede woondak ligt doorgaans op circa 19,5–19,7 m NAP. De verbindende garages liggen rond 18,8–19,0 m NAP. De eerdere laagbouwregel vereiste een verschil tussen het 90e percentiel en de mediaan; dat werkt voor een klein verhoogd dakdeel, maar mist een hoger woondak dat de meerderheid van de footprint beslaat.
+
+De aanvullende route wordt nu ook onderzocht als de mediaan minstens 0,3 m en maximaal 1,0 m boven het lagere robuuste niveau ligt, terwijl de totale robuuste spreiding hoogstens 1,5 m is. De overige contour- en maaiveldvoorwaarden blijven van kracht. Voor deze brede-dakvariant moet bovendien:
+
+- de mediaan van echte DSM-samples binnen 2 m van elk woningpunt binnen 0,2 m overeenkomen met de brede dakhoogte, met minstens twaalf bruikbare lokale metingen;
+- ieder woningpunt een eigen substantiële samenhangende dakzone ondersteunen;
+- de gezamenlijke ondersteunde dakzone minstens 40% van de bruikbare footprint-samples beslaan.
+
+De scheiding van de brede dakzone ligt 0,2 m onder de robuuste mediaan. Dat is geen zelfstandige algemene woningtypegrens: alle bovenstaande bewijzen blijven nodig. Bij de bestaande variant met kleinere verhoogde dakdelen blijft de eerder vastgelegde grens actief.
+
+### Exacte nieuwe doelpanden
+
+| Adres | BAG-ID | Verwachte en verkregen indeling |
+|---|---|---|
+| Zoekant 8 | 0772100000335658 | Twee-onder-een-kap met 10 |
+| Zoekant 10 | 0772100000335564 | Twee-onder-een-kap met 8 |
+| Zoekant 12 | 0772100000950142 | Vrijstaand |
+| Zoekant 14 | 0772100000335043 | Twee-onder-een-kap met 16 |
+| Zoekant 16 | 0772100000900420 | Twee-onder-een-kap met 14 |
+| Zoekant 18 | 0772100000335042 | Vrijstaand |
+
+De nieuwe fixture bevat twintig echte panden: de zes doelpanden en veertien omliggende controlepanden. Samen met de eerdere honderd zijn 120 unieke panden opnieuw via de volledige live PDOK WFS-route en echte AHN-data beoordeeld op de lokaal geïnstalleerde QGIS 4.2.3. Alle categorieën en woningpartners voldoen aan de vastgelegde verwachtingen. De 38 eerdere rijwoningcontroles blijven hoek-/tussenwoning; de behouden appartementcategorie verandert niet.
+
+### Reproduceerbaarheid en terugval
+
+`python qgis_tests/low_regression.py` controleert originele BAG/VBO/DSM/DTM-snapshots, SHA-256, juiste partners, beide contactrichtingen, omgekeerde featurevolgorde, herstel na cache-evictie, terugval bij ontbrekend VBO-bewijs en één automatisch gestylede geheugen-/GeoPackage-laag. De twaalf DSM-/DTM-tegels zijn opnieuw gedownload. Bronnen en checksums staan in [data_low/provenance.json](qgis_tests/data_low/provenance.json).
+
+Bij een geschikt vlak dakpatroon zonder passend aanvullend bewijs blijft de bestaande berekening actief en vermeldt `Controle` dat controle nodig is. `DakOnzeker` blijft het aantal onzekere dakcontacten tellen; het is geen volledige zekerheidsscore voor de woningtype-indeling.
+
+De live runner verwerkt nu ook Zoekant: `python qgis_tests/live_pdok.py <nieuwe-uitvoermap>`. Geen Computer Use of wijziging van de geopende QGIS-sessie. Geen wijziging aan Techbase. De volledige landelijke verwerking en andere, nog niet opgenomen lage vlakke rijwoningtypen zijn niet live gevalideerd; de 120 controlepanden zijn geen garantie voor alle woningvormen in Nederland.
