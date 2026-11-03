@@ -53,9 +53,21 @@ def _roof_cross_sections(a, b):
     """Meet alleen in het midden van een gedeelde/zeer nabije pandgrens."""
     if a.isEmpty() or b.isEmpty():
         return []
-    contact = a.boundary().intersection(b.buffer(0.5, 5))
+    # QgsGeometry.boundary() bestaat niet in alle QGIS 3/4 Python-bindings.
+    # Gebruik rechtstreeks de buitenring(en) van de BAG-polygoon.
+    try:
+        polygons = a.asMultiPolygon() if a.isMultipart() else [a.asPolygon()]
+    except (TypeError, ValueError):
+        return []
+    segments = []
+    buffer_b = b.buffer(0.5, 5)
+    for polygon in polygons:
+        if not polygon or not polygon[0]:
+            continue
+        ring = QgsGeometry.fromPolylineXY(polygon[0])
+        segments.extend(_segments(ring.intersection(buffer_b)))
     result = []
-    for start, end, length in _segments(contact):
+    for start, end, length in sorted(segments, key=lambda entry: -entry[2]):
         count = min(10, max(2, ceil(length / 2.5)))
         dx, dy = (end.x()-start.x())/length, (end.y()-start.y())/length
         nx, ny = -dy, dx
