@@ -220,6 +220,7 @@ def _result_fields():
         ("DakBuren", QVariant.Int),
         ("DakGetest", QVariant.Int),
         ("DakVerbonden", QVariant.Int),
+        ("DakBijgeb", QVariant.Int),
         ("DakOnzeker", QVariant.Int),
         ("Controle", QVariant.String),
     ):
@@ -444,8 +445,8 @@ class WoningtypenBepalenAlgorithm(QgsProcessingAlgorithm):
                     record["count_vbo"], decision["woningtype"],
                     "AHN DSM lokaal" if mode == 0 else "BAG-pandcontouren",
                     decision["dakburen"], decision["dakgetest"],
-                    decision["dakverbonden"], decision["dakonzeker"],
-                    decision["controle"],
+                    decision["dakverbonden"], decision["dakbijgeb"],
+                    decision["dakonzeker"], decision["controle"],
                 ])
                 batch.append(result)
                 count += 1
