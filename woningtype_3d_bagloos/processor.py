@@ -159,12 +159,10 @@ def _get_records(bag, fields, tile, overall, feedback):
 
 
 def _excluded_neighbour(record):
-    usage = record["usage"].casefold()
-    return not usage or (
-        "overige" in usage
-        and "woonfunctie" not in usage
-        and record["count_vbo"] == 1
-    )
+    # Garages, bergingen en andere BAG-panden zonder woonfunctie horen niet
+    # in de graaf van aangrenzende HOOFDWONINGEN. De oude check op 1 VBO
+    # miste veel garagepanden die nul VBO's hebben.
+    return not living_pand(record["usage"])
 
 
 def _find_neighbours(records, tolerance, feedback):
