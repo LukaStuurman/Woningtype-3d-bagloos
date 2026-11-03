@@ -33,6 +33,12 @@ Gebruikte categorieën (compatibel met Techbase LS Netontwerp): `vrijstaande won
 5. DSM-GeoTIFF-tegels worden hergebruikt uit een permanente lokale cache onder de gebruikersmap. Zonder netwerk kan **Alleen lokaal opgeslagen AHN gebruiken** aan. Als hoogten ontbreken of te twijfelachtig zijn, blijven BAG-pandrelaties leidend en wordt een controle-indicator gezet.
 6. Het resultaat kan als GeoPackage worden opgeslagen en op BAG-identificatie of locatie gekoppeld aan Techbase LS Netontwerp. De plugin **wijzigt geen ontwerpstroomregels**.
 
+## Uitvoerlaag en automatische kleuren (v0.4.0)
+
+De verwerking maakt één Processing-resultaatlaag met veld `Woningtype` aan. Bij uitvoer via de QGIS-werkbalk verwijdert de plugin eventueel door QGIS geladen lege extra resultaatlagen, maar laat andere, oudere of bronlagen ongemoeid. Bij het inladen van de resultaatlaag krijgt deze automatisch een **gecategoriseerde symbologie op `Woningtype`**, met eigen kleuren voor vrijstaand, twee-onder-een-kap, hoekwoning, tussenwoning/geschakeld en appartement. Panden zonder woonfunctie zijn lichtgrijs.
+
+Deze styling gebeurt via QGIS' Processing-postprocessor: tijdens berekening wordt géén tweede kaartlaag aangemaakt. De indeling blijft een indicatieve AHN-heuristiek; garages zitten vaak **binnen dezelfde BAG-pandcontour** als het hoofdgebouw. Daarom vergelijkt de nieuwe dakcontrole de dakhoogtes bij elke grens met de hogere dakzone van het gehele BAG-pand. **BAG-only** kan dit onderscheid niet maken; hiervoor moet de AHN-modus actief zijn en hoogtegegevens beschikbaar zijn.
+
 ## Installatie
 
 Download de **plugin-ZIP vanuit [Releases](https://github.com/LukaStuurman/Woningtype-3d-bagloos/releases)** (niet de standaard GitHub-broncode-ZIP). De plugin-ZIP bevat **uitsluitend de bovenste map** `woningtype_3d_bagloos/` (die `metadata.txt` en `__init__.py` bevat). Ga in QGIS naar **Plugins → Plugins beheren en installeren → Installeren vanuit ZIP**. Herstart QGIS, en gebruik de werkbalkknop of **Processing → Woningtype 3D-bagloos → Bepaal woningtypen met BAG en lokaal AHN**.
