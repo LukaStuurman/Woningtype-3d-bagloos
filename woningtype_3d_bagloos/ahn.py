@@ -210,10 +210,10 @@ class AhnRoofEvidence:
             inside_a.append(ha)
             inside_b.append(hb)
             for depth in (3.0, 5.0):
-                ia = x+nx*depth, y+ny*depth
-                ib = x-nx*depth, y-ny*depth
-                if _point_in(geom_a, ia, y+ny*depth):
-                    inside_a.append(self.height(ia, y+ny*depth))
-                if _point_in(geom_b, ib, y-ny*depth):
-                    inside_b.append(self.height(ib, y-ny*depth))
+                ax, ay = x+nx*depth, y+ny*depth
+                bx, by = x-nx*depth, y-ny*depth
+                if _point_in(geom_a, ax, ay):
+                    inside_a.append(self.height(ax, ay))
+                if _point_in(geom_b, bx, by):
+                    inside_b.append(self.height(bx, by))
         return roof_continuity(edge_a, edge_b, inside_a, inside_b)
