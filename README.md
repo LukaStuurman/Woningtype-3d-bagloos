@@ -53,7 +53,7 @@ Doelplatform: QGIS 3.34+ en QGIS 4 (PyQGIS / GDAL, zonder externe Python-pakkett
 
 ## Verbetering in 0.3.0: garages en carports
 
-De dakcontactcontrole kijkt nu niet alleen naar de hoogte bij een BAG-pandgrens maar vergelijkt deze met representatieve hoogtes verspreid over de hele pandcontour. Lage, aan elkaar gebouwde garages worden zo als aparte verbindingsbouw beoordeeld. Dat is een **benadering** van de dakvlakgedachte achter 3DBAG, maar geen automatische LoD2-dakreconstructie. Bij alleen BAG, uitgeschakelde AHN-controle of ontbrekende AHN-data kan de plugin garageverbindingen niet betrouwbaar onderscheiden; zie dan het veld `Controle`.
+De dakcontactcontrole kijkt nu niet alleen naar de hoogte bij een BAG-pandgrens maar vergelijkt deze met representatieve hoogtes verspreid over de hele pandcontour. Lage, aan elkaar gebouwde garages worden zo als aparte verbindingsbouw beoordeeld. **Garages zitten meestal binnen dezelfde BAG-pandcontour als de woning.** Een lage garageverbinding tussen twee al via hun hoofdgebouwen gekoppelde paren telt niet als een derde woning in de rij. Twee woonpanden die uitsluitend via één wederzijdse, unieke garageverbinding aansluiten, kunnen juist indicatief als twee-onder-een-kap worden geclassificeerd; bij meerdere kandidaten blijft de paarvorming onzeker. Het veld `DakBijgeb` telt deze lage dakcontacten. Dat is een **benadering** van de dakvlakgedachte achter 3DBAG, maar geen automatische LoD2-dakreconstructie. Bij alleen BAG, uitgeschakelde AHN-controle of ontbrekende AHN-data kan de plugin garageverbindingen niet betrouwbaar onderscheiden; zie dan het veld `Controle`.
 
 ## Aandachtspunten en betrouwbaarheid
 
