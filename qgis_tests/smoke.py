@@ -51,7 +51,7 @@ try:
         main_levels = [roof.main_roof_height(g) for g in four]
         assert all(v == 11.0 for v in main_levels), main_levels
         checks = [roof.check(four[i], four[i+1]) for i in range(3)]
-        assert checks == [True, False, True], checks
+        assert checks == [True, "bijgebouw", True], checks
         from woningtype_3d_bagloos.classify import classify_pands
         decision = classify_pands(
             [{"usage": "woonfunctie", "count_vbo": 1} for _ in range(4)],
