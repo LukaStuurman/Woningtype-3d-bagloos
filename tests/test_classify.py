@@ -56,7 +56,7 @@ class WoningtypeTests(unittest.TestCase):
         # Twee hoofdwoningparen, verbonden door lage garages, zijn geen rij.
         pands = [self._home() for _ in range(4)]
         neighbours = {0: {1}, 1: {0, 2}, 2: {1, 3}, 3: {2}}
-        roof_links = {(0, 1): True, (1, 2): False, (2, 3): True}
+        roof_links = {(0, 1): True, (1, 2): "bijgebouw", (2, 3): True}
         result = classify_pands(pands, neighbours, roof_links)
         self.assertEqual(
             [r["woningtype"] for r in result], [TWEEKAP] * 4
@@ -70,7 +70,7 @@ class WoningtypeTests(unittest.TestCase):
                 [4.0] * 6, [4.1] * 6,
                 [4.0] * 12, [4.1] * 12,
                 main_a=10.0, main_b=10.2,
-            ), False
+            ), "bijgebouw"
         )
         # Normale gedeelde kap: hoofdgebouw en grens liggen op zelfde dak.
         self.assertIs(
@@ -80,6 +80,30 @@ class WoningtypeTests(unittest.TestCase):
                 main_a=9.0, main_b=9.2,
             ), True
         )
+
+    def test_twee_huizen_alleen_via_lage_garages_toch_tweekap(self):
+        # De garage is onderdeel van dezelfde BAG-pandcontour als het huis.
+        # Beide hoofdgebouwen staan los maar de garages verbinden het paar.
+        pands = [self._home(), self._home()]
+        result = classify_pands(
+            pands, {0: {1}, 1: {0}}, {(0, 1): "bijgebouw"}
+        )
+        self.assertEqual(
+            [r["woningtype"] for r in result], [TWEEKAP, TWEEKAP]
+        )
+        self.assertEqual([r["dakbijgeb"] for r in result], [1, 1])
+        self.assertIn("via garages", result[0]["controle"])
+
+    def test_alleen_garageketting_is_geen_bewijs_voor_rijtjeshuis(self):
+        # Bij drie garages op rij kunnen we zonder dakvlakgeometrie niet
+        # bepalen welke twee woningen samen één paar vormen.
+        pands = [self._home() for _ in range(3)]
+        result = classify_pands(
+            pands, {0: {1}, 1: {0, 2}, 2: {1}},
+            {(0, 1): "bijgebouw", (1, 2): "bijgebouw"}
+        )
+        self.assertNotIn(TUSSEN, [r["woningtype"] for r in result])
+        self.assertEqual(result[1]["dakbijgeb"], 2)
 
     def test_no_ahn_data_keeps_bag_assessment_and_warns(self):
         pands = [self._home(), self._home()]
