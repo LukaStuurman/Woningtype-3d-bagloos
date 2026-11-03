@@ -107,6 +107,53 @@ try:
     assert all(f["Woningtype"] == TWEEKAP for f in features)
     assert all(f["bouwjaar"] == 2024 for f in features)
 
+    # Categoriekleuren op EEN uitvoerlaag, ook bij headless verwerking.
+    from woningtype_3d_bagloos.styling import (
+        WONINGTYPE_COLORS, WoningtypePostProcessor, style_woningtypen,
+    )
+    from qgis.core import QgsCategorizedSymbolRenderer
+    assert style_woningtypen(layer, "Woningtypen - test")
+    renderer = layer.renderer()
+    assert isinstance(renderer, QgsCategorizedSymbolRenderer)
+    assert renderer.classAttribute() == "Woningtype"
+    assert {c.value() for c in renderer.categories()} == {
+        value for value, _, _ in WONINGTYPE_COLORS
+    }
+    assert layer.name() == "Woningtypen - test"
+
+    # QGIS-versies kunnen een tweede, lege output-placeholder registreren.
+    # Die mag verwijderd worden, maar de gevulde laag en reeds bestaande
+    # lagen in het project blijven bestaan.
+    from woningtype_3d_bagloos.plugin import WoningtypeBagloosPlugin
+    project = QgsProject.instance()
+    initial = set(project.mapLayers())
+    populated = QgsVectorLayer(
+        "Polygon?crs=EPSG:28992", "gevuld resultaat", "memory"
+    )
+    empty = QgsVectorLayer(
+        "Polygon?crs=EPSG:28992", "lege dubbele laag", "memory"
+    )
+    for target in (populated, empty):
+        target.dataProvider().addAttributes([
+            QgsField("Woningtype", QVariant.String)
+        ])
+        target.updateFields()
+    feat = QgsFeature(populated.fields())
+    feat.setGeometry(a)
+    feat.setAttributes([TWEEKAP])
+    assert populated.dataProvider().addFeatures([feat])[0]
+    project.addMapLayer(populated)
+    project.addMapLayer(empty)
+    WoningtypeBagloosPlugin._remove_empty_duplicate_results(initial)
+    assert project.mapLayer(populated.id()) is not None
+    assert project.mapLayer(empty.id()) is None
+    project.removeMapLayer(populated.id())
+
+    # PostProcessor draait uitsluitend voor de aan QGIS te laden resultaatlaag.
+    post = WoningtypePostProcessor.create("Woningtypen - AHN-dakcontrole")
+    post.postProcessLayer(layer, context, feedback)
+    assert layer.renderer().classAttribute() == "Woningtype"
+
     # Ook het afwijkende dakcontactpad, zonder netwerkverzoeken.
     context2 = QgsProcessingContext()
     context2.setProject(QgsProject.instance())
