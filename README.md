@@ -2,6 +2,22 @@
 
 Bepaal woningtypen zonder afhankelijkheid van de 3DBAG-server. Deze zelfstandige QGIS Processing-plugin haalt de **BAG-pandgegevens** op via PDOK en maakt waar nodig zelf een **lichte dakcontactcontrole** uit het AHN-DSM (0,5 m resolutie). Er wordt **geen compleet 3D-gebouwmodel** aangemaakt.
 
+## Onderzoeksgebied: kaartvenster of heel Nederland
+
+Gebruik de plugin via de werkbalk en kies onder **Welk gebied verwerken?**:
+
+- **Huidig QGIS-kaartvenster**: het gebied dat zichtbaar is op het moment van starten. Je kunt het kaartvenster in het dialoogvenster ook handmatig als extent aanpassen.
+- **Zelf gekozen gebied**: geef een ruimtelijke extent op.
+- **Heel Nederland**: de vastgelegde landelijke RD New-boundingbox wordt in maximaal 10 x 10 km BAG-tegels verwerkt. Extreem dichte tegels worden automatisch verder verdeeld; de plugin bewaart slechts één tegel tegelijk in het geheugen. De buurbuffer is 25 m, zodat woningen op tegelgrenzen met hun buren worden beoordeeld.
+
+Bij **Heel Nederland** wordt een niet-ingestelde of tijdelijke uitvoer **automatisch een permanent GeoPackage** onder je gebruikersgegevensmap (`Woningtype3DBagloos/resultaten/`). Je kunt zelf een andere `.gpkg` als uitvoer kiezen, bijvoorbeeld op een snelle SSD. Een geheugenlaag is voor landelijke uitvoering niet geschikt.
+
+**Landelijk standaard: BAG zonder AHN.** BAG-contouren worden gebruikt voor de eerste landelijke typebepaling. Wil je ook het AHN-DSM voor heel Nederland analyseren, vink dan apart **HEEL NEDERLAND: AHN-hoogtecontrole expliciet inschakelen** aan. Dat kan zeer veel WCS-verzoeken en schijfruimte vereisen. Voor betrouwbare dakcontrole is het doorgaans praktischer om eerst landelijk BAG te verwerken en vervolgens relevante deelgebieden met AHN te controleren.
+
+Tijdens landelijke uitvoering verschijnen voortgang, tegelaantallen en geschreven panden in het Processing-log. Je kunt annuleren; een eventueel gedeeltelijk opgeslagen GeoPackage is **niet compleet** en mag niet als landelijke dataset worden gebruikt.
+
+> Let op: landelijke verwerking is ontworpen om geheugenarm te verlopen, maar kan afhankelijk van BAG/WFS-beschikbaarheid, AHN-service en netwerkbelasting lang duren. Een volledige live landelijke run is nog niet gevalideerd. Er is wel een QGIS-test die tegels op de grens zonder dubbele BAG-ID's verwerkt.
+
 ## Resultaten
 
 De uitvoer is een polygonenlaag met de BAG-pandcontour, BAG-identificatie, bouwjaar, gebruiksdoel, aantal verblijfsobjecten, indicatief woningtype, AHN-controlebron, aantal onderzochte buren, aantal aangetoonde dakverbindingen, aantal onzekerheden en een controle-indicator.
@@ -10,7 +26,7 @@ Gebruikte categorieën (compatibel met Techbase LS Netontwerp): `vrijstaande won
 
 ## Werking
 
-1. Start in QGIS de knop **Woningtype 3D-bagloos**. Het huidige kaartbeeld wordt als onderzoeksgebied gekozen.
+1. Start in QGIS de knop **Woningtype 3D-bagloos**. Kies het huidige kaartvenster, een eigen gebied of heel Nederland.
 2. De plugin leest alleen BAG-panden in het gebied plus een smalle buurbuffer, en herkent appartementen via woonfunctie + aantal VBO's.
 3. Een lokale ruimtelijke index bepaalt welke pandcontouren werkelijk aangrenzen (standaard maximaal 0,20 m afstand).
 4. **Uitsluitend voor aangrenzende woonpanden** vraagt de plugin beperkte AHN DSM-rastertegels op. Van gedeelde gevels worden hoogten kort binnen beide panden vergeleken. Hiermee kan een schijnbaar aansluitende lage carport / aanbouw worden onderscheiden van waarschijnlijk doorlopende dakvlakken.
@@ -19,7 +35,7 @@ Gebruikte categorieën (compatibel met Techbase LS Netontwerp): `vrijstaande won
 
 ## Installatie
 
-Download de repository als ZIP of maak een plugin-ZIP met **uitsluitend de bovenste map** `woningtype_3d_bagloos/` (die `metadata.txt` en `__init__.py` bevat). Ga in QGIS naar **Plugins → Plugins beheren en installeren → Installeren vanuit ZIP**. Herstart QGIS, en gebruik de werkbalkknop of **Processing → Woningtype 3D-bagloos → Bepaal woningtypen met BAG en lokaal AHN**.
+Download de **plugin-ZIP vanuit [Releases](https://github.com/LukaStuurman/Woningtype-3d-bagloos/releases)** (niet de standaard GitHub-broncode-ZIP). De plugin-ZIP bevat **uitsluitend de bovenste map** `woningtype_3d_bagloos/` (die `metadata.txt` en `__init__.py` bevat). Ga in QGIS naar **Plugins → Plugins beheren en installeren → Installeren vanuit ZIP**. Herstart QGIS, en gebruik de werkbalkknop of **Processing → Woningtype 3D-bagloos → Bepaal woningtypen met BAG en lokaal AHN**.
 
 Doelplatform: QGIS 3.34+ en QGIS 4 (PyQGIS / GDAL, zonder externe Python-pakketten). Er is een pure-Python eenheidstest: `python -m unittest discover -s tests -v`.
 
