@@ -33,7 +33,7 @@ Gebruikte categorieën (compatibel met Techbase LS Netontwerp): `vrijstaande won
 5. DSM-GeoTIFF-tegels worden hergebruikt uit een permanente lokale cache onder de gebruikersmap. Zonder netwerk kan **Alleen lokaal opgeslagen AHN gebruiken** aan. Als hoogten ontbreken of te twijfelachtig zijn, blijven BAG-pandrelaties leidend en wordt een controle-indicator gezet.
 6. Het resultaat kan als GeoPackage worden opgeslagen en op BAG-identificatie of locatie gekoppeld aan Techbase LS Netontwerp. De plugin **wijzigt geen ontwerpstroomregels**.
 
-## Uitvoerlaag en automatische kleuren (v0.4.0)
+## Uitvoerlaag en automatische kleuren (v0.4.1)
 
 De verwerking maakt één Processing-resultaatlaag met veld `Woningtype` aan. Bij uitvoer via de QGIS-werkbalk verwijdert de plugin eventueel door QGIS geladen lege extra resultaatlagen, maar laat andere, oudere of bronlagen ongemoeid. Bij het inladen van de resultaatlaag krijgt deze automatisch een **gecategoriseerde symbologie op `Woningtype`**, met eigen kleuren voor vrijstaand, twee-onder-een-kap, hoekwoning, tussenwoning/geschakeld en appartement. Panden zonder woonfunctie zijn lichtgrijs.
 
