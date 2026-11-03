@@ -13,7 +13,25 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
+  qgis-smoke:
+    runs-on: ubuntu-latest
+    container:
+      image: qgis/qgis:4.2.0-questing
+    steps:
+      - uses: actions/checkout@v4
+      - name: Test echt QGIS Processing, kaartvenster en landelijke tegels
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p /tmp/qgis-bagloos-runtime
+          chmod 700 /tmp/qgis-bagloos-runtime
+          QT_QPA_PLATFORM=offscreen \
+          XDG_RUNTIME_DIR=/tmp/qgis-bagloos-runtime \
+          PYTHONPATH="$PWD:/usr/share/qgis/python" \
+          python3 qgis_tests/smoke.py
+
   build:
+    needs: qgis-smoke
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
