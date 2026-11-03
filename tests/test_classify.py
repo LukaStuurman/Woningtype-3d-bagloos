@@ -38,6 +38,35 @@ class WoningtypeTests(unittest.TestCase):
         self.assertEqual(result[0]["dakgetest"], 1)
         self.assertEqual(result[0]["dakonzeker"], 0)
 
+    def test_vier_woningen_twee_tweekappers_met_lage_garagebrug(self):
+        # Twee hoofdwoningparen, verbonden door lage garages, zijn geen rij.
+        pands = [self._home() for _ in range(4)]
+        neighbours = {0: {1}, 1: {0, 2}, 2: {1, 3}, 3: {2}}
+        roof_links = {(0, 1): True, (1, 2): False, (2, 3): True}
+        result = classify_pands(pands, neighbours, roof_links)
+        self.assertEqual(
+            [r["woningtype"] for r in result], [TWEEKAP] * 4
+        )
+
+    def test_lage_doorlopende_garagedaken_zijn_geen_hoofddaken(self):
+        # Lokale aansluitingshoogte is identiek, maar het hoofdgebouw is
+        # aan weerszijden minstens 6 meter hoger dan de garages.
+        self.assertIs(
+            roof_continuity(
+                [4.0] * 6, [4.1] * 6,
+                [4.0] * 12, [4.1] * 12,
+                main_a=10.0, main_b=10.2,
+            ), False
+        )
+        # Normale gedeelde kap: hoofdgebouw en grens liggen op zelfde dak.
+        self.assertIs(
+            roof_continuity(
+                [8.0] * 6, [8.1] * 6,
+                [8.5] * 12, [8.6] * 12,
+                main_a=9.0, main_b=9.2,
+            ), True
+        )
+
     def test_no_ahn_data_keeps_bag_assessment_and_warns(self):
         pands = [self._home(), self._home()]
         result = classify_pands(
