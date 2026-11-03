@@ -22,7 +22,7 @@ WONINGTYPE_COLORS = (
 )
 
 
-def style_woningtypen(layer):
+def style_woningtypen(layer, name="Woningtypen"):
     """Pas een categorierenderer toe op de enige uitvoerlaag."""
     if not isinstance(layer, QgsVectorLayer) or not layer.isValid():
         return False
@@ -38,7 +38,7 @@ def style_woningtypen(layer):
         })
         categories.append(QgsRendererCategory(value, symbol, label))
     layer.setRenderer(QgsCategorizedSymbolRenderer("Woningtype", categories))
-    layer.setName("Woningtypen (BAG + AHN)")
+    layer.setName(name)
     layer.triggerRepaint()
     return True
 
@@ -52,12 +52,16 @@ class WoningtypePostProcessor(QgsProcessingLayerPostProcessorInterface):
     # Houd Python-objecten in leven tot QGIS de post-processing heeft voltooid.
     _references = []
 
+    def __init__(self, name="Woningtypen"):
+        super().__init__()
+        self.name = name
+
     @classmethod
-    def create(cls):
-        processor = cls()
+    def create(cls, name="Woningtypen"):
+        processor = cls(name)
         cls._references.append(processor)
         return processor
 
     def postProcessLayer(self, layer, context, feedback):
-        if style_woningtypen(layer) and feedback is not None:
+        if style_woningtypen(layer, self.name) and feedback is not None:
             feedback.pushInfo("Woningtypen: categoriekleuren toegepast op Woningtype.")
