@@ -36,12 +36,13 @@ def normalize_bag_id(value):
     return text.replace("NL.IMBAG.Pand.", "", 1) if text.startswith("NL.IMBAG.Pand.") else text
 
 
-def roof_continuity(edge_a, edge_b, inside_a, inside_b):
-    """Indicatief dakcontact uit AHN-DSM; onzekere data -> None.
+def roof_continuity(edge_a, edge_b, inside_a, inside_b,
+                    main_a=None, main_b=None):
+    """Indicatief dakcontact met onderscheid hoofddak / garage of carport.
 
-    Een gelijk hoog dak is geen sluitend bewijs voor één constructief dak. Bij
-    scherpe hoogteverschillen of een lage verbindingsbouw is een los contact
-    aannemelijk. De grenswaarden zijn conservatieve heuristieken.
+    `main_a` en `main_b` zijn robuuste hoogtekwantielen van het HELE
+    BAG-pand, niet alleen van de gevel met de buur. Een lage garageverbinding
+    mag geen rijwoning veroorzaken. None betekent: onvoldoende zekerheid.
     """
     import statistics
     from math import isfinite
@@ -59,7 +60,20 @@ def roof_continuity(edge_a, edge_b, inside_a, inside_b):
     deep_a, deep_b = pa - ha, pb - hb
     if delta >= 3.0:
         return False
-    # Twee lage dakstroken tussen veel hogere panddelen: waarschijnlijk aanbouw.
+
+    # Vergelijk de aansluiting met de dominante (hogere) dakdelen over het
+    # volledige pand. Twee identieke, lage garagedaken kunnen anders door de
+    # oude lokale-mediantest onterecht als één rijwoningdak worden geteld.
+    if main_a is not None and main_b is not None:
+        local_a = sorted(ia)[int((len(ia) - 1) * 0.75)]
+        local_b = sorted(ib)[int((len(ib) - 1) * 0.75)]
+        if (main_a - ha >= 2.75 and main_b - hb >= 2.75
+                and main_a - local_a >= 1.75
+                and main_b - local_b >= 1.75):
+            return False
+
+    # Ook zonder betrouwbare complete pandhoogte kan een duidelijk lager
+    # contact uitgesloten worden; bij twijfel blijft het resultaat onbekend.
     if deep_a >= 3.5 and deep_b >= 3.5 and delta < 1.5:
         return False
     if delta <= 0.85 and deep_a <= 2.75 and deep_b <= 2.75:
