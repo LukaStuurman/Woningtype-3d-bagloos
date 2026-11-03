@@ -57,7 +57,8 @@ try:
     algorithm = WoningtypenBepalenAlgorithm()
     algorithm.initAlgorithm()
     assert {p.name() for p in algorithm.parameterDefinitions()} == {
-        "EXTENT", "MODE", "OFFLINE", "TOLERANCE", "OUTPUT",
+        "AREA_MODE", "EXTENT", "MODE", "NATIONAL_AHN",
+        "TILE_SIZE", "OFFLINE", "TOLERANCE", "OUTPUT",
     }
 
     context = QgsProcessingContext()
@@ -91,6 +92,50 @@ try:
     second = context2.temporaryLayerStore().mapLayer(result["OUTPUT"])
     assert second is not None
     assert [f["Woningtype"] for f in second.getFeatures()] == [VRIJ, VRIJ]
-    print("QGIS 4 processing, polygonen, AHN-doorsnede en classificatie: OK")
+    # Landelijke modus: grenspanden in twee tegels één keer uitvoeren.
+    from pathlib import Path
+    from qgis.core import QgsVectorLayer
+    wide = QgsVectorLayer("Polygon?crs=EPSG:28992", "Landelijke test-BAG", "memory")
+    wide.dataProvider().addAttributes(bag.fields().toList())
+    wide.updateFields()
+    for n, wkt in enumerate((
+        "POLYGON((995 200,1000 200,1000 210,995 210,995 200))",
+        "POLYGON((1000 200,1005 200,1005 210,1000 210,1000 200))",
+    )):
+        feat = QgsFeature(wide.fields())
+        feat.setGeometry(QgsGeometry.fromWkt(wkt))
+        feat.setAttributes(["test-000%d" % n, 2022, "woonfunctie", 1, "Pand in gebruik"])
+        assert wide.dataProvider().addFeatures([feat])[0]
+    wide.updateExtents()
+    import woningtype_3d_bagloos.processor as processor
+    with tempfile.TemporaryDirectory() as directory:
+        national = WoningtypenBepalenAlgorithm()
+        national.initAlgorithm()
+        national_context = QgsProcessingContext()
+        national_context.setProject(QgsProject.instance())
+        national_args = {
+            "AREA_MODE": 2,
+            "MODE": 0,  # Zonder expliciete NATIONAL_AHN moet BAG-only gebruikt worden.
+            "NATIONAL_AHN": False,
+            "TILE_SIZE": 1000,
+            "TOLERANCE": 0.20,
+            "OUTPUT": str(Path(directory) / "nationwide.gpkg"),
+        }
+        with patch("woningtype_3d_bagloos.processor.NETHERLANDS_RD",
+                   (0.0, 0.0, 2000.0, 1000.0)):
+            with patch("woningtype_3d_bagloos.processor._source", return_value=wide):
+                output_n, success = national.run(
+                    national_args, national_context, QgsProcessingFeedback()
+                )
+        assert success, output_n
+        produced = QgsVectorLayer(output_n["OUTPUT"], "landelijk", "ogr")
+        assert produced.isValid()
+        all_features = list(produced.getFeatures())
+        assert len(all_features) == 2, len(all_features)
+        assert len({f["identificatie"] for f in all_features}) == 2
+        assert all(f["Woningtype"] == TWEEKAP for f in all_features)
+        assert all(f["Dakbron"] == "BAG-pandcontouren" for f in all_features)
+
+    print("QGIS 4 processing, kaartvenster, landelijke tegels, en AHN: OK")
 finally:
     app.exitQgis()
