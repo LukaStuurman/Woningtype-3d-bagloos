@@ -1,15 +1,26 @@
-"""QGIS Processing-algoritme: BAG panden + lokaal afgeleide AHN-dakcontacten."""
+"""QGIS Processing: woningtypen BAG + selectieve AHN DSM-dakcontrole.
+
+Kaartvenster, eigen gebied en heel Nederland worden als afzonderlijke modi
+ondersteund. De verwerking verloopt per tegel, met vaste maximale werkset,
+adaptieve splitsing in dichte stedelijke gebieden en precies één uitvoerfeature
+per BAG-identificatie op basis van het pandcentrum.
+"""
 from __future__ import annotations
 
-from qgis.PyQt.QtCore import QVariant
+from collections import deque
+from datetime import datetime
+from pathlib import Path
+from uuid import uuid4
+
+from qgis.PyQt.QtCore import QStandardPaths, QVariant
 from qgis.core import (
     QgsCoordinateReferenceSystem, QgsCoordinateTransform, QgsFeature,
     QgsFeatureRequest, QgsFeatureSink, QgsField, QgsFields, QgsGeometry,
-    QgsProcessing, QgsProcessingAlgorithm, QgsProcessingException,
+    QgsProcessingAlgorithm, QgsProcessingException,
     QgsProcessingParameterBoolean, QgsProcessingParameterEnum,
     QgsProcessingParameterExtent, QgsProcessingParameterFeatureSink,
-    QgsProcessingParameterNumber, QgsProject, QgsRectangle,
-    QgsSpatialIndex, QgsVectorLayer,
+    QgsProcessingParameterNumber, QgsProject, QgsRectangle, QgsSpatialIndex,
+    QgsVectorLayer,
 )
 
 from .ahn import AhnRoofEvidence
@@ -17,11 +28,14 @@ from .classify import (
     classify_pands, excluded_pand, living_pand, normalize_bag_id,
     normalized_text, safe_int,
 )
+from .tiling import NETHERLANDS_RD, area, subdivide, tile_owns_point, tile_windows
 
 PDOK_BAG_WFS = "https://service.pdok.nl/kadaster/bag/wfs/v2_0"
 RD = QgsCoordinateReferenceSystem("EPSG:28992")
-MAX_BUILDINGS = 30000
 SURROUNDING_METERS = 25.0
+MAX_BUILDINGS_PER_TILE = 30000
+MIN_SUBTILE_METERS = 250.0
+WRITE_BATCH_SIZE = 1000
 
 
 def _source():
@@ -33,7 +47,8 @@ def _source():
     layer = QgsVectorLayer(uri, "BAG panden via PDOK", "WFS")
     if not layer.isValid():
         raise QgsProcessingException(
-            "BAG WFS kon niet worden geopend. Controleer internet of probeer opnieuw."
+            "PDOK BAG WFS kan niet worden geopend. "
+            "Controleer de verbinding en probeer het later opnieuw."
         )
     return layer
 
@@ -50,10 +65,30 @@ def _value(feature, field):
     return feature.attribute(field) if field is not None else None
 
 
-def _processing_extent(parameters, context, algorithm):
-    provided = parameters.get("EXTENT")
-    if provided not in (None, ""):
+def _bounds(rect):
+    return (
+        rect.xMinimum(), rect.yMinimum(),
+        rect.xMaximum(), rect.yMaximum(),
+    )
+
+
+def _rect(bounds):
+    return QgsRectangle(*bounds)
+
+
+def _processing_extent(parameters, context, algorithm, area_mode):
+    if area_mode == 2:
+        return QgsRectangle(*NETHERLANDS_RD)
+
+    supplied = parameters.get("EXTENT")
+    if supplied not in (None, ""):
         return algorithm.parameterAsExtent(parameters, "EXTENT", context, RD)
+
+    if area_mode == 1:
+        raise QgsProcessingException(
+            "Kies een onderzoeksgebied bij 'Zelf gekozen gebied'."
+        )
+
     try:
         from qgis.utils import iface
         canvas = iface.mapCanvas() if iface else None
@@ -61,20 +96,144 @@ def _processing_extent(parameters, context, algorithm):
         canvas = None
     if canvas is None:
         raise QgsProcessingException(
-            "Geef een onderzoeksgebied op (EPSG:28992) of start vanuit de QGIS-kaart."
+            "Zoom naar een onderzoeksgebied in QGIS of geef een extent op."
         )
     source_crs = canvas.mapSettings().destinationCrs()
     rectangle = QgsRectangle(canvas.extent())
-    if source_crs != RD:
+    if source_crs.isValid() and source_crs != RD:
         rectangle = QgsCoordinateTransform(
             source_crs, RD, QgsProject.instance()
         ).transformBoundingBox(rectangle)
     return rectangle
 
 
+def _save_location():
+    """Voor landelijke uitvoer nooit alle polygonen in een geheugenlaag bewaren."""
+    where = QStandardPaths.writableLocation(
+        QStandardPaths.StandardLocation.GenericDataLocation
+    )
+    if not where:
+        raise QgsProcessingException(
+            "Geen lokale gegevensmap gevonden. Kies expliciet een GeoPackage-output."
+        )
+    directory = Path(where) / "Woningtype3DBagloos" / "resultaten"
+    directory.mkdir(parents=True, exist_ok=True)
+    name = "woningtypen_nederland_%s_%s.gpkg" % (
+        datetime.now().strftime("%Y%m%d_%H%M%S"), uuid4().hex[:8]
+    )
+    return str(directory / name)
+
+
+def _get_records(bag, fields, tile, overall, feedback):
+    """Lees een tegel plus buurbuffer; return None als adaptief splitsen nodig is."""
+    request_rect = _rect(tile)
+    request_rect.grow(SURROUNDING_METERS)
+    request = QgsFeatureRequest().setFilterRect(request_rect)
+    selected_fields = [name for name in fields.values() if name]
+    request.setSubsetOfAttributes(selected_fields, bag.fields())
+    records, local_ids = [], set()
+
+    for feature in bag.getFeatures(request):
+        if feedback.isCanceled():
+            return []
+        if excluded_pand(_value(feature, fields["status"])):
+            continue
+        geom = feature.geometry()
+        if geom is None or geom.isEmpty():
+            continue
+        identifier = normalize_bag_id(_value(feature, fields["id"]))
+        if not identifier or identifier in local_ids:
+            continue
+        local_ids.add(identifier)
+        year = safe_int(_value(feature, fields["year"]), 0)
+        records.append({
+            "id": identifier,
+            "year": year if year > 0 else None,
+            "usage": normalized_text(_value(feature, fields["usage"])),
+            "count_vbo": safe_int(_value(feature, fields["count"])),
+            "geom": QgsGeometry(geom),
+        })
+        if len(records) > MAX_BUILDINGS_PER_TILE:
+            return None
+    return records
+
+
+def _excluded_neighbour(record):
+    usage = record["usage"].casefold()
+    return not usage or (
+        "overige" in usage
+        and "woonfunctie" not in usage
+        and record["count_vbo"] == 1
+    )
+
+
+def _find_neighbours(records, tolerance, feedback):
+    spatial = QgsSpatialIndex()
+    for idx, record in enumerate(records):
+        feature = QgsFeature()
+        feature.setId(idx)
+        feature.setGeometry(record["geom"])
+        spatial.addFeature(feature)
+
+    neighbours = {i: set() for i in range(len(records))}
+    for i, record in enumerate(records):
+        if feedback.isCanceled():
+            return neighbours
+        if _excluded_neighbour(record):
+            continue
+        bounds = QgsRectangle(record["geom"].boundingBox())
+        bounds.grow(tolerance)
+        for j in spatial.intersects(bounds):
+            if j <= i or _excluded_neighbour(records[j]):
+                continue
+            first, second = record["geom"], records[j]["geom"]
+            if first.intersects(second) or first.distance(second) <= tolerance:
+                neighbours[i].add(j)
+                neighbours[j].add(i)
+    return neighbours
+
+
+def _roof_links(records, neighbours, evidence, feedback):
+    links = {}
+    for i, neighbours_i in neighbours.items():
+        if feedback.isCanceled():
+            break
+        if not living_pand(records[i]["usage"]) or records[i]["count_vbo"] > 1:
+            continue
+        for j in neighbours_i:
+            if j <= i:
+                continue
+            if not living_pand(records[j]["usage"]) or records[j]["count_vbo"] > 1:
+                continue
+            links[i, j] = evidence.check(records[i]["geom"], records[j]["geom"])
+    return links
+
+
+def _result_fields():
+    fields = QgsFields()
+    for name, variant in (
+        ("identificatie", QVariant.String),
+        ("bouwjaar", QVariant.Int),
+        ("gebruiksdoel", QVariant.String),
+        ("aantal_vbo", QVariant.Int),
+        ("Woningtype", QVariant.String),
+        ("Dakbron", QVariant.String),
+        ("DakBuren", QVariant.Int),
+        ("DakGetest", QVariant.Int),
+        ("DakVerbonden", QVariant.Int),
+        ("DakOnzeker", QVariant.Int),
+        ("Controle", QVariant.String),
+    ):
+        fields.append(QgsField(name, variant))
+    return fields
+
+
 class WoningtypenBepalenAlgorithm(QgsProcessingAlgorithm):
+    AREA_MODE = "AREA_MODE"
     EXTENT = "EXTENT"
     MODE = "MODE"
+    NATIONAL_AHN = "NATIONAL_AHN"
+    TILE_SIZE = "TILE_SIZE"
     OFFLINE = "OFFLINE"
     TOLERANCE = "TOLERANCE"
     OUTPUT = "OUTPUT"
@@ -96,55 +255,94 @@ class WoningtypenBepalenAlgorithm(QgsProcessingAlgorithm):
 
     def shortHelpString(self):
         return (
-            "Bepaalt pandwoningtypen uitsluitend met BAG-pandcontouren en kleine "
-            "AHN DSM-hoogtetermijnen. De 3DBAG-server wordt nooit gebruikt.\n"
-            "Het resultaat is indicatief: controleer AHN-onzekerheden en "
-            "afwijkende daken vóór gebruik bij ontwerpstroomberekeningen."
+            "Verwerkt het huidige kaartvenster, een gekozen gebied of heel "
+            "Nederland. Landelijke verwerking gebeurt in 10-km-tegels (instelbaar), "
+            "met adaptieve onderverdeling, lokale ruimtelijke indices en "
+            "Geopackage-uitvoer op schijf. De 3DBAG-server wordt niet benaderd.\n"
+            "Voor heel Nederland staat extra AHN-hoogtecontrole standaard uit: "
+            "die kan miljoenen rasteropvragingen veroorzaken. Zet haar expliciet "
+            "aan als je dit toch nodig hebt, of werk eerst BAG-landelijk af "
+            "en controleer daarna deelgebieden met AHN.\n"
+            "Alle woningtypen zijn indicatief; controleer twijfelgevallen."
         )
 
     def initAlgorithm(self, config=None):
+        self.addParameter(QgsProcessingParameterEnum(
+            self.AREA_MODE, "Welk gebied verwerken?",
+            options=[
+                "Huidig QGIS-kaartvenster",
+                "Zelf gekozen gebied",
+                "Heel Nederland (tegels, schrijft naar GeoPackage)",
+            ],
+            defaultValue=0
+        ))
         self.addParameter(QgsProcessingParameterExtent(
             self.EXTENT,
-            "Onderzoeksgebied (leeg = huidige kaartuitsnede)",
+            "Kaartvenster of zelfgekozen gebied (niet nodig voor heel Nederland)",
             optional=True
         ))
         self.addParameter(QgsProcessingParameterEnum(
-            self.MODE,
-            "Dakcontrolemethode",
+            self.MODE, "Dakcontrolemethode",
             options=[
-                "BAG + lokaal afgeleide AHN DSM-dakcontacten (aanbevolen)",
-                "Alleen BAG-pandcontouren (geen AHN-download)",
+                "BAG + AHN DSM-dakcontacten uit lokale cache / PDOK",
+                "Alleen BAG-pandcontouren (snelste, geen AHN-download)",
             ],
             defaultValue=0
         ))
         self.addParameter(QgsProcessingParameterBoolean(
-            self.OFFLINE,
-            "AHN: alleen bestaande lokaal gecachte tegels gebruiken",
+            self.NATIONAL_AHN,
+            "HEEL NEDERLAND: AHN-hoogtecontrole expliciet inschakelen (zwaar)",
             defaultValue=False
         ))
         self.addParameter(QgsProcessingParameterNumber(
-            self.TOLERANCE,
-            "Maximale afstand aangrenzende pandcontouren (m)",
+            self.TILE_SIZE, "BAG-tegelgrootte (meters, standaard 10 km)",
+            type=QgsProcessingParameterNumber.Integer,
+            minValue=1000, maxValue=10000, defaultValue=10000
+        ))
+        self.addParameter(QgsProcessingParameterBoolean(
+            self.OFFLINE,
+            "AHN: uitsluitend eerder gecachte rastertegels gebruiken",
+            defaultValue=False
+        ))
+        self.addParameter(QgsProcessingParameterNumber(
+            self.TOLERANCE, "Maximale afstand tussen pandcontouren (m)",
             type=QgsProcessingParameterNumber.Double,
             minValue=0.0, maxValue=1.0, defaultValue=0.20
         ))
         self.addParameter(QgsProcessingParameterFeatureSink(
-            self.OUTPUT, "Woningtypen (polygonen)"
+            self.OUTPUT, "Woningtypen (GeoPackage aanbevolen)"
         ))
 
     def processAlgorithm(self, parameters, context, feedback):
-        extent = _processing_extent(parameters, context, self)
+        area_mode = self.parameterAsEnum(parameters, self.AREA_MODE, context)
+        if area_mode not in (0, 1, 2):
+            raise QgsProcessingException("Onbekende gebiedsmodus.")
+        extent = _processing_extent(parameters, context, self, area_mode)
         if extent.isEmpty() or extent.width() <= 0 or extent.height() <= 0:
-            raise QgsProcessingException("Het gekozen onderzoeksgebied is leeg.")
-        if extent.width() * extent.height() > 100000000:
-            raise QgsProcessingException(
-                "Kies een gebied van maximaal 100 km² per verwerking. "
-                "Gebruik meerdere kleine gebieden voor grotere projecten."
+            raise QgsProcessingException("Onderzoeksgebied is leeg.")
+        bounds = _bounds(extent)
+        tile_size = self.parameterAsInt(parameters, self.TILE_SIZE, context)
+        tolerance = self.parameterAsDouble(parameters, self.TOLERANCE, context)
+        requested_mode = self.parameterAsEnum(parameters, self.MODE, context)
+        allow_national_ahn = self.parameterAsBool(
+            parameters, self.NATIONAL_AHN, context
+        )
+        mode = (1 if area_mode == 2 and requested_mode == 0
+                and not allow_national_ahn else requested_mode)
+        offline = self.parameterAsBool(parameters, self.OFFLINE, context)
+
+        if area_mode == 2 and mode == 1 and requested_mode == 0:
+            feedback.pushInfo(
+                "Landelijke veiligheidsinstelling: BAG-contouren zonder AHN. "
+                "Schakel 'HEEL NEDERLAND: AHN' in voor dakhoogteonderzoek, "
+                "of verwerk een kleiner gebied met AHN."
+            )
+        if area_mode == 2 and mode == 0:
+            feedback.pushInfo(
+                "WAARSCHUWING: landelijke AHN-controle kan zeer veel WCS-verzoeken "
+                "veroorzaken. Caches worden gebruikt, maar de uitvoering blijft zwaar."
             )
 
-        tolerance = self.parameterAsDouble(parameters, self.TOLERANCE, context)
-        mode = self.parameterAsEnum(parameters, self.MODE, context)
-        offline = self.parameterAsBool(parameters, self.OFFLINE, context)
         bag = _source()
         fields = {
             "id": _field_name(bag, "identificatie"),
@@ -158,158 +356,122 @@ class WoningtypenBepalenAlgorithm(QgsProcessingAlgorithm):
                 "BAG WFS mist identificatie, gebruiksdoel of aantal_verblijfsobjecten."
             )
 
-        query = QgsRectangle(extent)
-        query.grow(SURROUNDING_METERS)
-        feedback.pushInfo("BAG-pandcontouren ophalen inclusief %.0fm buurbuffer"
-                          % SURROUNDING_METERS)
-        request = QgsFeatureRequest().setFilterRect(query)
-        records = []
-        seen = set()
-        for feature in bag.getFeatures(request):
-            if feedback.isCanceled():
-                return {}
-            if excluded_pand(_value(feature, fields["status"])):
-                continue
-            geom = feature.geometry()
-            if geom is None or geom.isEmpty():
-                continue
-            identifier = normalize_bag_id(_value(feature, fields["id"]))
-            if not identifier:
-                continue
-            if identifier in seen:
-                continue
-            seen.add(identifier)
-            raw_year = safe_int(_value(feature, fields["year"]), 0)
-            records.append({
-                "id": identifier,
-                "year": raw_year if raw_year > 0 else None,
-                "usage": normalized_text(_value(feature, fields["usage"])),
-                "count_vbo": safe_int(_value(feature, fields["count"])),
-                "geom": QgsGeometry(geom),
-                "output": geom.intersects(QgsGeometry.fromRect(extent)),
-            })
-            if len(records) > MAX_BUILDINGS:
-                raise QgsProcessingException(
-                    "Meer dan %d BAG-panden gevonden. Zoom verder in en probeer opnieuw."
-                    % MAX_BUILDINGS
-                )
-        feedback.pushInfo("BAG-pandcontouren: %d gevonden" % len(records))
-
-        # Ruimtelijke index: alleen echte naburen, geen O(n²)-vergelijkingen.
-        index = QgsSpatialIndex()
-        for i, record in enumerate(records):
-            feat = QgsFeature()
-            feat.setId(i)
-            feat.setGeometry(record["geom"])
-            index.addFeature(feat)
-        neighbours = {i: set() for i in range(len(records))}
-        for i, record in enumerate(records):
-            if feedback.isCanceled():
-                return {}
-            if record["usage"] == "" or (
-                "overige" in record["usage"].casefold()
-                and not living_pand(record["usage"])
-                and record["count_vbo"] == 1
-            ):
-                continue
-            bbox = QgsRectangle(record["geom"].boundingBox())
-            bbox.grow(tolerance)
-            for j in index.intersects(bbox):
-                if j <= i:
-                    continue
-                other = records[j]
-                if other["usage"] == "" or (
-                    "overige" in other["usage"].casefold()
-                    and not living_pand(other["usage"])
-                    and other["count_vbo"] == 1
-                ):
-                    continue
-                g1, g2 = record["geom"], other["geom"]
-                if g1.intersects(g2) or g1.distance(g2) <= tolerance:
-                    neighbours[i].add(j)
-                    neighbours[j].add(i)
-            if i % 200 == 0:
-                feedback.setProgress(int(35 * i / max(1, len(records))))
-
-        roof_links = {}
-        mode_source = "AHN" if mode == 0 else "BAG"
-        if mode == 0:
-            ahn = AhnRoofEvidence(feedback, offline=offline)
-            candidate_pairs = [
-                (i, j)
-                for i, nset in neighbours.items()
-                for j in sorted(nset)
-                if j > i
-                and living_pand(records[i]["usage"])
-                and living_pand(records[j]["usage"])
-                and records[i]["count_vbo"] <= 1
-                and records[j]["count_vbo"] <= 1
-            ]
+        output_params = dict(parameters)
+        output = output_params.get(self.OUTPUT)
+        if area_mode == 2 and (output in (None, "", "TEMPORARY_OUTPUT")
+                               or isinstance(output, str)
+                               and output.upper() == "TEMPORARY_OUTPUT"):
+            output_params[self.OUTPUT] = _save_location()
             feedback.pushInfo(
-                "AHN: alleen %d gedeelde woonpandgrenzen controleren; "
-                "geen 3DBAG-requests" % len(candidate_pairs)
+                "Landelijke uitvoer wordt rechtstreeks naar schijf geschreven: %s"
+                % output_params[self.OUTPUT]
             )
-            for num, (i, j) in enumerate(candidate_pairs, 1):
-                if feedback.isCanceled():
-                    return {}
-                roof_links[i, j] = ahn.check(
-                    records[i]["geom"], records[j]["geom"]
-                )
-                if num % 10 == 0 or num == len(candidate_pairs):
-                    feedback.setProgress(35 + int(55 * num / max(1, len(candidate_pairs))))
-            feedback.pushInfo(
-                "AHN: %d rastertegels gedownload, %d contacten gecontroleerd"
-                % (ahn.downloads, len(candidate_pairs))
+        elif area_mode == 2 and isinstance(output, str) and (
+                output.lower().startswith("memory:")):
+            raise QgsProcessingException(
+                "Kies een .gpkg-uitvoer op schijf voor heel Nederland, "
+                "geen geheugenlaag."
             )
 
-        decisions = classify_pands(records, neighbours, roof_links, mode_source)
-        result_fields = QgsFields()
-        for name, variant in (
-            ("identificatie", QVariant.String),
-            ("bouwjaar", QVariant.Int),
-            ("gebruiksdoel", QVariant.String),
-            ("aantal_vbo", QVariant.Int),
-            ("Woningtype", QVariant.String),
-            ("Dakbron", QVariant.String),
-            ("DakBuren", QVariant.Int),
-            ("DakGetest", QVariant.Int),
-            ("DakVerbonden", QVariant.Int),
-            ("DakOnzeker", QVariant.Int),
-            ("Controle", QVariant.String),
-        ):
-            result_fields.append(QgsField(name, variant))
-
-        sink, destination = self.parameterAsSink(
-            parameters, self.OUTPUT, context,
+        result_fields = _result_fields()
+        sink, dest_id = self.parameterAsSink(
+            output_params, self.OUTPUT, context,
             result_fields, bag.wkbType(), RD
         )
         if sink is None:
-            raise QgsProcessingException("Kon de uitvoerlaag niet schrijven.")
+            raise QgsProcessingException("Kan uitvoerlaag niet maken.")
 
-        written, uncertain = 0, 0
-        for record, decision in zip(records, decisions):
+        ahn = AhnRoofEvidence(feedback, offline=offline) if mode == 0 else None
+        queue = deque(tile_windows(bounds, tile_size))
+        total_tiles = len(queue)
+        done_area, total_area = 0.0, area(bounds)
+        count, uncertain, dense_splits, tiles_done = 0, 0, 0, 0
+
+        feedback.pushInfo(
+            "Start %s: %d begint egels van maximaal %d x %d m."
+            % (["kaartvenster", "zelfgekozen gebied", "heel Nederland"][area_mode],
+               total_tiles, tile_size, tile_size)
+        )
+
+        while queue:
             if feedback.isCanceled():
+                feedback.pushInfo(
+                    "Verwerking geannuleerd; eventuele deels geschreven output "
+                    "is onvolledig en mag niet als landelijke dekking worden gebruikt."
+                )
                 return {}
-            if not record["output"]:
+            tile = queue.popleft()
+            records = _get_records(bag, fields, tile, bounds, feedback)
+            if records is None:
+                if max(tile[2]-tile[0], tile[3]-tile[1]) <= MIN_SUBTILE_METERS:
+                    raise QgsProcessingException(
+                        "Zelfs de kleinste BAG-tegel bevat te veel panden. "
+                        "Verwerking gestopt om RAM-uitputting te vermijden."
+                    )
+                first, second = subdivide(tile)
+                queue.appendleft(second)
+                queue.appendleft(first)
+                dense_splits += 1
                 continue
-            result = QgsFeature(result_fields)
-            result.setGeometry(record["geom"])
-            result.setAttributes([
-                record["id"], record["year"], record["usage"],
-                record["count_vbo"], decision["woningtype"],
-                "AHN DSM lokaal" if mode == 0 else "BAG-pandcontouren",
-                decision["dakburen"], decision["dakgetest"],
-                decision["dakverbonden"], decision["dakonzeker"],
-                decision["controle"],
-            ])
-            if not sink.addFeature(result, QgsFeatureSink.FastInsert):
-                raise QgsProcessingException("Schrijven van een BAG-pand mislukt.")
-            written += 1
-            if decision["dakonzeker"] and decision["woningtype"]:
-                uncertain += 1
+
+            neighbours = _find_neighbours(records, tolerance, feedback)
+            roof_links = (_roof_links(records, neighbours, ahn, feedback)
+                          if ahn is not None else {})
+            decisions = classify_pands(
+                records, neighbours, roof_links,
+                source="AHN" if ahn is not None else "BAG",
+            )
+
+            batch = []
+            for record, decision in zip(records, decisions):
+                geom = record["geom"]
+                center = geom.centroid()
+                if center.isEmpty():
+                    center = geom.pointOnSurface()
+                if center.isEmpty():
+                    continue
+                point = center.asPoint()
+                if not tile_owns_point(tile, bounds, point.x(), point.y()):
+                    continue
+                if not geom.intersects(QgsGeometry.fromRect(extent)):
+                    continue
+
+                result = QgsFeature(result_fields)
+                result.setGeometry(geom)
+                result.setAttributes([
+                    record["id"], record["year"], record["usage"],
+                    record["count_vbo"], decision["woningtype"],
+                    "AHN DSM lokaal" if mode == 0 else "BAG-pandcontouren",
+                    decision["dakburen"], decision["dakgetest"],
+                    decision["dakverbonden"], decision["dakonzeker"],
+                    decision["controle"],
+                ])
+                batch.append(result)
+                count += 1
+                if decision["dakonzeker"] and decision["woningtype"]:
+                    uncertain += 1
+                if len(batch) >= WRITE_BATCH_SIZE:
+                    if not sink.addFeatures(batch, QgsFeatureSink.FastInsert):
+                        raise QgsProcessingException("Kon een BAG-resultaatbatch niet opslaan.")
+                    batch.clear()
+
+            if batch and not sink.addFeatures(batch, QgsFeatureSink.FastInsert):
+                raise QgsProcessingException("Kon de laatste BAG-resultaatbatch niet opslaan.")
+
+            tiles_done += 1
+            done_area += area(tile)
+            feedback.setProgress(min(99.0, 100.0 * done_area / total_area))
+            if tiles_done == 1 or tiles_done % 25 == 0:
+                feedback.pushInfo(
+                    "Tegels gereed: %d (extra gesplitst: %d). Panden opgeslagen: %d. "
+                    "Voortgang: %.1f%%"
+                    % (tiles_done, dense_splits, count, 100.0*done_area/total_area)
+                )
+
         feedback.setProgress(100)
         feedback.pushInfo(
-            "Klaar: %d panden, waaronder %d woonpanden met onzekere "
-            "AHN-dakcontacten." % (written, uncertain)
+            "Klaar: %d panden opgeslagen uit %d tegels; %d woonpanden "
+            "met onzekere AHN-dakcontacten. Uitvoer: %s"
+            % (count, tiles_done, uncertain, dest_id)
         )
-        return {self.OUTPUT: destination}
+        return {self.OUTPUT: dest_id}
