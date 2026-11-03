@@ -120,8 +120,11 @@ def classify_pands(records, neighbours, roof_links=None, source="AHN"):
         if (not effective[j] and accessory[j] == [i]
                 and safe_int(records[i].get("count_vbo")) <= 1
                 and safe_int(records[j].get("count_vbo")) <= 1):
+            # Altijd beide kanten tegelijk koppelen. Een eenzijdige
+            # toekenning maakte het andere huis onterecht vrijstaand.
             effective[i].append(j)
-            garage_pairs.add(i)
+            effective[j].append(i)
+            garage_pairs.update((i, j))
 
     for i, record in enumerate(records):
         has_home = living_pand(record.get("usage"))
