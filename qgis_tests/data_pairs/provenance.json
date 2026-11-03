@@ -1,0 +1,31 @@
+{
+  "captured_utc": "2026-11-03T11:30:14.803131+00:00",
+  "bag_source": "https://service.pdok.nl/kadaster/bag/wfs/v2_0",
+  "bag_bbox_rd": [
+    162100,
+    387700,
+    162750,
+    388270
+  ],
+  "ahn_source": "https://service.pdok.nl/rws/ahn/wcs/v1_0",
+  "coverage": "dsm_05m",
+  "query": "WFS 2.0.0 GetFeature bag:pand, EPSG:28992, paginated; WCS 2.0.1 original 64m DSM tiles plus 1m margin",
+  "files": {
+    "bag.geojson": "3d30cf4a63c9cbd7707edb87a6d943d0dce02bfc04509095b79c7d8b12a83335",
+    "expected.json": "2c400c25bb938b21e670b855489a0b80e0df5ec7183aa6ea8502dec468a3b8b5",
+    "ahn/dsm_2535_6064.tif": "72bd57b5fdcb97776e84da16efc291bf70643c5b83d6149322e3cd4bcb05f8b1",
+    "ahn/dsm_2535_6065.tif": "91a6a2cc66757814b08cecd245f825589452ffd65f35172aa0854c8712118181",
+    "ahn/dsm_2536_6059.tif": "6621b7c37ebf1e622eab2f13ec8566d7ac93a1e6dde104b664213e900bcd9912",
+    "ahn/dsm_2536_6061.tif": "1b1afd5470f0c6b44c92e05ccb09ddbfdccab63c64811d3e6a8999f0e2bccc60",
+    "ahn/dsm_2536_6062.tif": "3627469250e467862b9b664d1bb3493a5f6882281f11ac18e199de4bde2b0af4",
+    "ahn/dsm_2536_6064.tif": "30f582d78eab42b2499fe6bd0bbb491545b253bf3adc1989fca666f18885bcb1",
+    "ahn/dsm_2536_6065.tif": "5890218a217109bfe23316c0c97bf2ef1d0af59449716750355fb00503922f14",
+    "ahn/dsm_2537_6058.tif": "e918d0ba0ebc55c8cc6e00638809e82894416f88d46166095af7f9f6d71f2a59",
+    "ahn/dsm_2537_6059.tif": "8354d81d8d1c22606677d3ee62a14cf225d363f4bb00dc1c322fee0feccdb7ec",
+    "ahn/dsm_2537_6061.tif": "f4754235e35e1c50e2c608dfdb919f1d9a109d006dbd778a6b9ffd87eacd3879",
+    "ahn/dsm_2538_6058.tif": "028ac691a2b8928e99e69810c5b1b584d7c5b45a3f8b3c0758970cf010bbd0c5",
+    "ahn/dsm_2538_6059.tif": "cf32743ac96c4912ccf3647636ef90a34dad8984cea900dceaa6e089f940eda1",
+    "ahn/dsm_2538_6061.tif": "33604a9752c0ea2c1650168542977efc02333ba7b3dec39f7cdc79dd92445f6a",
+    "ahn/dsm_2539_6061.tif": "6e016f691fa9b3b1d5103a4c4358722dd7140547294c6eacd1de2e9a25169325"
+  }
+}

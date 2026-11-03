@@ -51,6 +51,12 @@ Doelplatform: QGIS 3.34+ en QGIS 4 (PyQGIS / GDAL, zonder externe Python-pakkett
 - AHN WCS: <https://service.pdok.nl/rws/ahn/wcs/v1_0> — `dsm_05m`, OGC WCS 2.0.1.
 - 3DBAG wordt **niet** benaderd. Dit is een nieuwe, zelfstandige benadering; er wordt geen code uit de Techbase-plugin of 3DBAG-implementatie gekopieerd.
 
+## Lage aansluitingen tussen steile kappen en hogere garages (0.7.0)
+
+De dakcontrole volgt nu ook een profiel vanaf de woningscheiding naar binnen. Twee steile hoofdkappen kunnen laag tegen elkaar aansluiten: een onmiddellijk en geleidelijk stijgend profiel naar beide hoofddakzones bewijst dan een hoofdcontact. Een lager garagevlak met pas verderop een stap naar het hoofddak voldoet daar niet aan. De hoge dakzones zijn aangescherpt zodat een hoger garagedak niet automatisch hoofdvolume wordt. Direct gemeten lage rasterwaarden blijven bruikbaar als de dichtstbijzijnde cel van het footprintgrid ontbreekt.
+
+Opnieuw live gevalideerd op **100 echte BAG-panden**, waaronder alle twaalf nieuw aangewezen woningen aan De Koppele, Goudrenetstraat en Sterappelstraat. De zes woningen aan De Koppele en de twee respectievelijk vier omcirkelde woningen zijn nu twee-onder-een-kap. Ook de concrete paarvorming wordt getest. De nabije echte rijwoningen, de eerdere dakgevallen en de behouden appartementcategorie blijven correct. Zie `qgis_tests/pair_regression.py` en [VALIDATION.md](VALIDATION.md).
+
 ## Bijna even hoge platte daken en carports (0.6.0)
 
 Bij een specifiek laagbouwpatroon combineert de plugin nu de kleine dakstappen in AHN DSM met BAG-verblijfsobjectpunten, hoogte boven AHN DTM en een duidelijk ingesneden pandvorm. Alleen als al deze bewijzen samenpassen, worden de afzonderlijke dakdelen gebruikt voor de contactcontrole. De nieuwe regel wordt niet toegepast op iedere vlakke kap of iedere rijwoning. Het extra veld `Woonbewijs` maakt deze indicatieve beoordeling zichtbaar. Zonder voldoende bewijs blijft de bestaande analyse actief.

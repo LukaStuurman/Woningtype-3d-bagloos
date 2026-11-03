@@ -125,3 +125,48 @@ De tien controlewoningen vormen een echte doorlopende rij met hoofdcontacten, me
 Bronnen: BAG WFS, BAG OGC API verblijfsobject, AHN WCS `dsm_05m` én `dtm_05m`. Zie [data_flat/provenance.json](qgis_tests/data_flat/provenance.json) voor bron-URL’s, opnamedatum van de snapshot en SHA-256. De opnamedatum van de snapshot is niet de vliegdatum van AHN.
 
 Niet gevalideerd: alle denkbare vlakke rijwoning- en bungalowvarianten, heel Nederland, of de geopende QGIS-interface. Een nauwe aansluiting met dezelfde hoogte kan ook met deze gegevens onzeker blijven. De straatfoto ondersteunt de gewenste interpretatie van dit blok; de plugin classificeert geen straatfoto’s en gebruikt geen plaats- of BAG-ID-specifieke uitzondering. Techbase blijft ongemoeid.
+
+## Uitbreiding 0.7.0 — De Koppele, Goudrenetstraat en Sterappelstraat
+
+De zes nieuwe afbeeldingen zijn gekoppeld aan drie echte BAG-locaties. De straatfoto’s en de expliciete aanwijzing van de gebruiker vormen de verwachte interpretatie; de uitvoer wordt berekend uit echte BAG-contouren en AHN-metingen. Er zijn geen plaatsafhankelijke uitzonderingen toegevoegd aan de plugin.
+
+### Oorzaken en wijzigingen
+
+- **De Koppele:** aan de scheiding meten we op circa 0,5 m diepte ongeveer 20–21 m NAP. Het dak stijgt vervolgens binnen 3 m gelijkmatig naar circa 25 m NAP aan beide kanten. De vorige hoogtezone zag de lage aansluiting als bijgebouw. De aanvullende profieltest herkent de doorgaande steile hoofdkappen.
+- **Goudrenetstraat:** de garageverbinding piekt lokaal rond 23,6 m NAP, terwijl de hoofdvolumes rond 24,8–25,7 m NAP komen. De vorige ruime hoofdzone liet dat garagedak meetellen. De aangescherpte hoofdzone sluit de verbinding uit; een apart profielpad bewaart echte lage hoofdcontacten.
+- **Sterappelstraat:** bij een laag garagecontact ontbraken enkele cellen in het footprintgrid, terwijl op die contactpunten wel directe lage DSM-metingen beschikbaar waren. Die metingen tellen nu als laag bewijs. Werkelijk ontbrekende hoogten blijven onzeker.
+
+De alternatieve profieltest vraagt vier opeenvolgende contactprofielen. Aan beide zijden moet het dak vanaf de scheiding direct stijgen, zonder plateau of grote sprong, en op 2–3,5 m diepte een substantiële hoofddakzone bereiken. Hierdoor wordt niet alleen de hoogte maar ook de vorm van de verbinding beoordeeld. Voor normale hoge dakzones is de onderste marge nu 0,5 m onder het robuuste 80e percentiel; voor vlakke daken en de aanvullende laagbouwanalyse blijven hun aparte regels gelden.
+
+### Nieuwe geometrische regressies
+
+| Locatie | Werkelijke panden in nieuwe fixture | Uitkomst |
+|---|---:|---|
+| De Koppele | 6 | 3 juiste twee-onder-een-kapparen |
+| Goudrenetstraat | 22 | 4 twee-onder-een-kapparen plus echte rijen van 8 en 6 woningen |
+| Sterappelstraat | 22 | 4 twee-onder-een-kapparen plus echte rijen van 8 en 6 woningen |
+
+De nieuwe fixture omvat 50 echte panden. Samen met de eerdere 27 en 23 panden zijn 100 unieke doelpanden rechtstreeks via de live PDOK WFS-provider met echte AHN-data doorgerekend op QGIS 4.2.3. Alle 100 voldoen aan de vastgelegde verwachte categorie. Ook de 38 rijwoningcontroles binnen deze verzameling blijven hoek-/tussenwoning. Het pand met twee VBO’s blijft appartement conform de gebruikersinstructie.
+
+### De twaalf nieuw aangewezen woningen
+
+| Locatie | BAG-ID | Juiste partner BAG-ID |
+|---|---|---|
+| koppele | 0772100000336194 | 0772100000336193 |
+| koppele | 0772100000336193 | 0772100000336194 |
+| koppele | 0772100000336192 | 0772100000336191 |
+| koppele | 0772100000336191 | 0772100000336192 |
+| koppele | 0772100000336190 | 0772100000336189 |
+| koppele | 0772100000336189 | 0772100000336190 |
+| goudrenet | 0772100000331672 | 0772100000331671 |
+| goudrenet | 0772100000331671 | 0772100000331672 |
+| sterappel | 0772100000330694 | 0772100000330693 |
+| sterappel | 0772100000330693 | 0772100000330694 |
+| sterappel | 0772100000330692 | 0772100000330691 |
+| sterappel | 0772100000330691 | 0772100000330692 |
+
+Nieuwe originele BAG- en DSM-snapshots, bron-URL’s, querybbox en SHA-256: [data_pairs/provenance.json](qgis_tests/data_pairs/provenance.json). De 14 DSM-tegels zijn opnieuw via WCS gedownload.
+
+`python qgis_tests/pair_regression.py` controleert alle 50 nieuwe panden, expliciet de juiste woningpartners, omgekeerde contactrichting/featurevolgorde en één automatisch gestylede geheugen- en GeoPackage-laag. De eerdere geografische suites blijven verplicht in dezelfde CI-matrix voor QGIS 3.34, 3.44.5 en 4.2.0.
+
+De live runner is uitgebreid met de drie nieuwe gebieden: `python qgis_tests/live_pdok.py <nieuwe-uitvoermap>`. Er is geen Computer Use gebruikt. De open QGIS-interface en heel Nederland zijn niet gevalideerd. Bij andere dakvormen, vegetatie of onvoldoende AHN-dekking blijft de indeling indicatief; 100 juiste gevallen zijn geen garantie voor elk pand in Nederland. De originele Techbase-plugin is ongemoeid gebleven.

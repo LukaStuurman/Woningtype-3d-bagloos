@@ -29,7 +29,7 @@ class RoofZones:
         lower = quantile(values, .1)
         # Sloping main roofs retain their broad upper surfaces. Flat buildings
         # need no artificial height step. This is a roof zone, not a ridge pixel.
-        self.threshold = (self.level - 1.75 if quantile(values, .9) - lower > 1.5
+        self.threshold = (self.level - .5 if quantile(values, .9) - lower > 1.5
                           else lower - .5)
         remaining = {p for p, h in samples.items() if h >= self.threshold}
         minimum = max(6.0, len(samples) * spacing * spacing * .04)

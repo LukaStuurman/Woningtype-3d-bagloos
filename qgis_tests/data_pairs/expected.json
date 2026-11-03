@@ -1,0 +1,274 @@
+{
+  "0772100000336194": {
+    "case": "koppele",
+    "woningtype": "twee-onder-een-kap",
+    "peer": "0772100000336193",
+    "focus": true
+  },
+  "0772100000336193": {
+    "case": "koppele",
+    "woningtype": "twee-onder-een-kap",
+    "peer": "0772100000336194",
+    "focus": true
+  },
+  "0772100000336192": {
+    "case": "koppele",
+    "woningtype": "twee-onder-een-kap",
+    "peer": "0772100000336191",
+    "focus": true
+  },
+  "0772100000336191": {
+    "case": "koppele",
+    "woningtype": "twee-onder-een-kap",
+    "peer": "0772100000336192",
+    "focus": true
+  },
+  "0772100000336190": {
+    "case": "koppele",
+    "woningtype": "twee-onder-een-kap",
+    "peer": "0772100000336189",
+    "focus": true
+  },
+  "0772100000336189": {
+    "case": "koppele",
+    "woningtype": "twee-onder-een-kap",
+    "peer": "0772100000336190",
+    "focus": true
+  },
+  "0772100000331672": {
+    "case": "goudrenet",
+    "woningtype": "twee-onder-een-kap",
+    "peer": "0772100000331671",
+    "focus": true
+  },
+  "0772100000331671": {
+    "case": "goudrenet",
+    "woningtype": "twee-onder-een-kap",
+    "peer": "0772100000331672",
+    "focus": true
+  },
+  "0772100000331670": {
+    "case": "goudrenet",
+    "woningtype": "twee-onder-een-kap",
+    "peer": "0772100000331669",
+    "focus": false
+  },
+  "0772100000331669": {
+    "case": "goudrenet",
+    "woningtype": "twee-onder-een-kap",
+    "peer": "0772100000331670",
+    "focus": false
+  },
+  "0772100000331668": {
+    "case": "goudrenet",
+    "woningtype": "twee-onder-een-kap",
+    "peer": "0772100000331667",
+    "focus": false
+  },
+  "0772100000331667": {
+    "case": "goudrenet",
+    "woningtype": "twee-onder-een-kap",
+    "peer": "0772100000331668",
+    "focus": false
+  },
+  "0772100000331666": {
+    "case": "goudrenet",
+    "woningtype": "twee-onder-een-kap",
+    "peer": "0772100000331665",
+    "focus": false
+  },
+  "0772100000331665": {
+    "case": "goudrenet",
+    "woningtype": "twee-onder-een-kap",
+    "peer": "0772100000331666",
+    "focus": false
+  },
+  "0772100000330694": {
+    "case": "sterappel",
+    "woningtype": "twee-onder-een-kap",
+    "peer": "0772100000330693",
+    "focus": true
+  },
+  "0772100000330693": {
+    "case": "sterappel",
+    "woningtype": "twee-onder-een-kap",
+    "peer": "0772100000330694",
+    "focus": true
+  },
+  "0772100000330692": {
+    "case": "sterappel",
+    "woningtype": "twee-onder-een-kap",
+    "peer": "0772100000330691",
+    "focus": true
+  },
+  "0772100000330691": {
+    "case": "sterappel",
+    "woningtype": "twee-onder-een-kap",
+    "peer": "0772100000330692",
+    "focus": true
+  },
+  "0772100000330690": {
+    "case": "sterappel",
+    "woningtype": "twee-onder-een-kap",
+    "peer": "0772100000330689",
+    "focus": false
+  },
+  "0772100000330689": {
+    "case": "sterappel",
+    "woningtype": "twee-onder-een-kap",
+    "peer": "0772100000330690",
+    "focus": false
+  },
+  "0772100000330688": {
+    "case": "sterappel",
+    "woningtype": "twee-onder-een-kap",
+    "peer": "0772100000330593",
+    "focus": false
+  },
+  "0772100000330593": {
+    "case": "sterappel",
+    "woningtype": "twee-onder-een-kap",
+    "peer": "0772100000330688",
+    "focus": false
+  },
+  "0772100000331781": {
+    "case": "goudrenet",
+    "woningtype": "hoekwoning",
+    "focus": false
+  },
+  "0772100000331679": {
+    "case": "goudrenet",
+    "woningtype": "tussenwoning/geschakeld",
+    "focus": false
+  },
+  "0772100000331678": {
+    "case": "goudrenet",
+    "woningtype": "tussenwoning/geschakeld",
+    "focus": false
+  },
+  "0772100000331677": {
+    "case": "goudrenet",
+    "woningtype": "tussenwoning/geschakeld",
+    "focus": false
+  },
+  "0772100000331676": {
+    "case": "goudrenet",
+    "woningtype": "tussenwoning/geschakeld",
+    "focus": false
+  },
+  "0772100000331675": {
+    "case": "goudrenet",
+    "woningtype": "tussenwoning/geschakeld",
+    "focus": false
+  },
+  "0772100000331674": {
+    "case": "goudrenet",
+    "woningtype": "tussenwoning/geschakeld",
+    "focus": false
+  },
+  "0772100000331673": {
+    "case": "goudrenet",
+    "woningtype": "hoekwoning",
+    "focus": false
+  },
+  "0772100000331664": {
+    "case": "goudrenet",
+    "woningtype": "hoekwoning",
+    "focus": false
+  },
+  "0772100000331663": {
+    "case": "goudrenet",
+    "woningtype": "tussenwoning/geschakeld",
+    "focus": false
+  },
+  "0772100000331662": {
+    "case": "goudrenet",
+    "woningtype": "tussenwoning/geschakeld",
+    "focus": false
+  },
+  "0772100000331661": {
+    "case": "goudrenet",
+    "woningtype": "tussenwoning/geschakeld",
+    "focus": false
+  },
+  "0772100000331660": {
+    "case": "goudrenet",
+    "woningtype": "tussenwoning/geschakeld",
+    "focus": false
+  },
+  "0772100000331659": {
+    "case": "goudrenet",
+    "woningtype": "hoekwoning",
+    "focus": false
+  },
+  "0772100000330702": {
+    "case": "sterappel",
+    "woningtype": "hoekwoning",
+    "focus": false
+  },
+  "0772100000330701": {
+    "case": "sterappel",
+    "woningtype": "tussenwoning/geschakeld",
+    "focus": false
+  },
+  "0772100000330700": {
+    "case": "sterappel",
+    "woningtype": "tussenwoning/geschakeld",
+    "focus": false
+  },
+  "0772100000330699": {
+    "case": "sterappel",
+    "woningtype": "tussenwoning/geschakeld",
+    "focus": false
+  },
+  "0772100000330698": {
+    "case": "sterappel",
+    "woningtype": "tussenwoning/geschakeld",
+    "focus": false
+  },
+  "0772100000330697": {
+    "case": "sterappel",
+    "woningtype": "tussenwoning/geschakeld",
+    "focus": false
+  },
+  "0772100000330696": {
+    "case": "sterappel",
+    "woningtype": "tussenwoning/geschakeld",
+    "focus": false
+  },
+  "0772100000330695": {
+    "case": "sterappel",
+    "woningtype": "hoekwoning",
+    "focus": false
+  },
+  "0772100000330592": {
+    "case": "sterappel",
+    "woningtype": "hoekwoning",
+    "focus": false
+  },
+  "0772100000330591": {
+    "case": "sterappel",
+    "woningtype": "tussenwoning/geschakeld",
+    "focus": false
+  },
+  "0772100000330590": {
+    "case": "sterappel",
+    "woningtype": "tussenwoning/geschakeld",
+    "focus": false
+  },
+  "0772100000330589": {
+    "case": "sterappel",
+    "woningtype": "tussenwoning/geschakeld",
+    "focus": false
+  },
+  "0772100000330588": {
+    "case": "sterappel",
+    "woningtype": "tussenwoning/geschakeld",
+    "focus": false
+  },
+  "0772100000330587": {
+    "case": "sterappel",
+    "woningtype": "hoekwoning",
+    "focus": false
+  }
+}

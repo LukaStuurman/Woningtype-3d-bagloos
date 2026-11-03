@@ -233,6 +233,29 @@ class AhnRoofEvidence:
         zones = self.roof_zones(geom)
         return zones.level if zones is not None and zones.reliable else None
 
+    def _sloping_main(self, geom, zones, x, y, nx, ny):
+        """An eave/valley can join two real homes well below their ridges.
+
+        Require an immediate, continuous roof slope into a substantial main
+        zone. A garage plateau followed by a wall step cannot pass this test.
+        """
+        heights, supported = [], False
+        for depth in (.5, 1.0, 1.5, 2.0, 2.5, 3.0, 3.5):
+            px, py = x+nx*depth, y+ny*depth
+            if not _point_in(geom, px, py):
+                return False
+            h = self.height(px, py)
+            if h is None:
+                return False
+            if heights:
+                change = h-heights[-1]
+                if abs(change) > 1.4 or (len(heights) <= 3 and change < .15):
+                    return False
+            heights.append(h)
+            if depth >= 2 and zones.at(px, py) is True:
+                supported = True
+        return supported and max(heights)-heights[0] >= 1.5
+
     def check(self, geom_a, geom_b):
         """Use paired spatial roof zones along ALL contact strips.
 
@@ -253,16 +276,28 @@ class AhnRoofEvidence:
                 return None
             ax, ay, bx, by = x+nx*1.25, y+ny*1.25, x-nx*1.25, y-ny*1.25
             za, zb = a.at(ax, ay), b.at(bx, by)
-            if za is None or zb is None:
+            ha, hb = self.height(ax, ay), self.height(bx, by)
+            # A clipped grid cell can be missing even when the actual contact
+            # sample is inside the footprint. Direct low DSM evidence remains
+            # usable; high isolated pixels still cannot establish a main zone.
+            if za is None and ha is not None and ha < a.threshold-.15:
+                za = False
+            if zb is None and hb is not None and hb < b.threshold-.15:
+                zb = False
+            is_main = (za is True and zb is True and ha is not None
+                       and hb is not None and abs(ha-hb) <= 1.5)
+            if not is_main:
+                edge_a = self.height(x+nx*.5, y+ny*.5)
+                edge_b = self.height(x-nx*.5, y-ny*.5)
+                if (edge_a is not None and edge_b is not None and abs(edge_a-edge_b) <= 1.5
+                        and self._sloping_main(geom_a, a, x, y, nx, ny)
+                        and self._sloping_main(geom_b, b, x, y, -nx, -ny)):
+                    is_main = True
+            if not is_main and (za is None or zb is None):
                 run, previous = 0, None
                 continue
             valid += 1
-            is_main = False
-            if za and zb:
-                ha, hb = self.height(ax, ay), self.height(bx, by)
-                if ha is not None and hb is not None and abs(ha-hb) <= 1.5:
-                    is_main = True
-            elif za is False or zb is False:
+            if not is_main and (za is False or zb is False):
                 low += 1
             if is_main:
                 contiguous = previous is not None and hypot(x-previous[0], y-previous[1]) <= 1.0
