@@ -1,0 +1,81 @@
+name: Test en maak QGIS plugin ZIP
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: woningtype-release-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Python installeren
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Python syntax en woningtype tests
+        run: |
+          python -m compileall -q woningtype_3d_bagloos tests
+          python -m unittest discover -s tests -v
+
+      - name: Versie en QGIS-plugin ZIP maken
+        id: package
+        shell: bash
+        run: |
+          set -euo pipefail
+          VERSION="$(sed -n 's/^version=//p' woningtype_3d_bagloos/metadata.txt | head -n 1 | tr -d '\r')"
+          test -n "$VERSION"
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+          echo "zip=Woningtype-3d-bagloos-$VERSION.zip" >> "$GITHUB_OUTPUT"
+          VERSION="$VERSION" python - <<'PY'
+          import os
+          from pathlib import Path
+          from zipfile import ZipFile, ZIP_DEFLATED
+          name = "Woningtype-3d-bagloos-%s.zip" % os.environ["VERSION"]
+          with ZipFile(name, "w", ZIP_DEFLATED) as archive:
+              for path in sorted(Path("woningtype_3d_bagloos").rglob("*")):
+                  if (path.is_file() and "__pycache__" not in path.parts
+                          and path.suffix not in (".pyc", ".pyo")):
+                      archive.write(path, path.as_posix())
+          with ZipFile(name) as archive:
+              entries = archive.namelist()
+              assert "woningtype_3d_bagloos/metadata.txt" in entries
+              assert "woningtype_3d_bagloos/__init__.py" in entries
+              assert all(e.startswith("woningtype_3d_bagloos/") for e in entries)
+          print("QGIS-installeerbare ZIP:", name, "bestanden:", len(entries))
+          PY
+
+      - name: ZIP als Actions-artifact aanbieden
+        uses: actions/upload-artifact@v4
+        with:
+          name: Woningtype-3d-bagloos-QGIS-plugin
+          path: ${{ steps.package.outputs.zip }}
+
+      - name: GitHub Release aanmaken of bestand vervangen
+        env:
+          GH_TOKEN: ${{ github.token }}
+          VERSION: ${{ steps.package.outputs.version }}
+          ZIP_NAME: ${{ steps.package.outputs.zip }}
+        run: |
+          set -euo pipefail
+          TAG="v$VERSION"
+          if gh release view "$TAG" --repo "$GITHUB_REPOSITORY" >/dev/null 2>&1; then
+            gh release upload "$TAG" "$ZIP_NAME" --clobber --repo "$GITHUB_REPOSITORY"
+          else
+            gh release create "$TAG" "$ZIP_NAME" \
+              --target "$GITHUB_SHA" \
+              --title "Woningtype 3D-bagloos $TAG" \
+              --notes "Zelfstandige QGIS-plugin: BAG + AHN DSM-dakcontrole zonder 3DBAG." \
+              --repo "$GITHUB_REPOSITORY"
+          fi
