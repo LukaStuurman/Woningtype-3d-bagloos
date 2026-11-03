@@ -32,6 +32,34 @@ try:
         ahn.height = lambda x, y: 7.0
         assert ahn.check(a, b) is True, "AHN-dakcontact test niet geslaagd"
 
+    # Regressie: huizen 0-1 en 2-3 delen hun HOOFDAK, maar de lage
+    # garages tussen 1-2 raken elkaar. Zonder analyse van het gehele pand
+    # werden alle vier onterecht als rijtjeshuis ingedeeld.
+    four = [
+        QgsGeometry.fromWkt(
+            "POLYGON((%d 200,%d 200,%d 210,%d 210,%d 200))"
+            % (x, x + 10, x + 10, x, x)
+        ) for x in (100, 110, 120, 130)
+    ]
+    with tempfile.TemporaryDirectory() as cache:
+        roof = AhnRoofEvidence(
+            QgsProcessingFeedback(), cache_dir=cache, offline=True
+        )
+        # In deze kunstmatige AHN-DSM vormt x=115..125 de lage garagebrug.
+        # Alle vier panden hebben verder hoge hoofddaken.
+        roof.height = lambda x, y: (4.0 if 115 <= x <= 125 else 11.0)
+        main_levels = [roof.main_roof_height(g) for g in four]
+        assert all(v == 11.0 for v in main_levels), main_levels
+        checks = [roof.check(four[i], four[i+1]) for i in range(3)]
+        assert checks == [True, False, True], checks
+        from woningtype_3d_bagloos.classify import classify_pands
+        decision = classify_pands(
+            [{"usage": "woonfunctie", "count_vbo": 1} for _ in range(4)],
+            {0: {1}, 1: {0, 2}, 2: {1, 3}, 3: {2}},
+            {(0, 1): checks[0], (1, 2): checks[1], (2, 3): checks[2]},
+        )
+        assert [d["woningtype"] for d in decision] == [TWEEKAP] * 4
+
     bag = QgsVectorLayer("Polygon?crs=EPSG:28992", "Fictieve BAG", "memory")
     bag.dataProvider().addAttributes([
         QgsField("identificatie", QVariant.String),
