@@ -65,7 +65,7 @@ class WoningtypeTests(unittest.TestCase):
     def test_lage_doorlopende_garagedaken_zijn_geen_hoofddaken(self):
         # Lokale aansluitingshoogte is identiek, maar het hoofdgebouw is
         # aan weerszijden minstens 6 meter hoger dan de garages.
-        self.assertIs(
+        self.assertEqual(
             roof_continuity(
                 [4.0] * 6, [4.1] * 6,
                 [4.0] * 12, [4.1] * 12,
