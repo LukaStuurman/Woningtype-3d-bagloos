@@ -95,7 +95,9 @@ def classify_pands(records, neighbours, roof_links=None, source="AHN"):
     for i in range(len(records)):
         effective[i] = [
             j for j in sorted(neighbours.get(i, set()))
-            if roof_links.get((min(i, j), max(i, j))) is not False
+            if living_pand(records[i].get("usage"))
+            and living_pand(records[j].get("usage"))
+            and roof_links.get((min(i, j), max(i, j))) is not False
         ]
 
     for i, record in enumerate(records):
