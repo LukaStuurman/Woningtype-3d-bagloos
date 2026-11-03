@@ -27,7 +27,7 @@ Gebruikte categorieën (compatibel met Techbase LS Netontwerp): `vrijstaande won
 ## Werking
 
 1. Start in QGIS de knop **Woningtype 3D-bagloos**. Kies het huidige kaartvenster, een eigen gebied of heel Nederland.
-2. De plugin leest alleen BAG-panden in het gebied plus een smalle buurbuffer, en herkent appartementen via woonfunctie + aantal VBO's.
+2. De plugin leest BAG-panden in het gebied plus een smalle buurbuffer, en herkent appartementen via woonfunctie + aantal VBO's. Afzonderlijke garage- of bergingpanden zonder woonfunctie tellen **niet** als buurwoning, ook als ze nul verblijfsobjecten bevatten.
 3. Een lokale ruimtelijke index bepaalt welke pandcontouren werkelijk aangrenzen (standaard maximaal 0,20 m afstand).
 4. **Uitsluitend voor aangrenzende woonpanden** vraagt de plugin beperkte AHN DSM-rastertegels op. Met een ruimtelijk steekproefgrid wordt eerst het **hogere hoofddak van het complete BAG-pand** bepaald (robuust 80e percentiel, geen willekeurige hoogste pixel). Daarna vergelijkt de plugin dat met de dakhoogtes langs de gedeelde pandgrens en verder naar binnen. Een lage garage/carport die twee hoofdgebouwen verbindt, telt dan niet mee als doorlopende hoofdgebouwverbinding. Dit voorkomt dat twee paren twee-onder-een-kapwoningen door hun garages als rijtjeshuizen worden gezien.
 5. DSM-GeoTIFF-tegels worden hergebruikt uit een permanente lokale cache onder de gebruikersmap. Zonder netwerk kan **Alleen lokaal opgeslagen AHN gebruiken** aan. Als hoogten ontbreken of te twijfelachtig zijn, blijven BAG-pandrelaties leidend en wordt een controle-indicator gezet.
