@@ -104,5 +104,9 @@ def run():
 try:
     run()
 finally:
+    import gc
+    from woningtype_3d_bagloos.styling import WoningtypePostProcessor
+    WoningtypePostProcessor._references.clear()
     QgsProject.instance().clear()
+    gc.collect()
     app.exitQgis()

@@ -14,7 +14,7 @@ from qgis.core import (
 
 app = QgsApplication([], False)
 app.initQgis()
-try:
+def run():
     from woningtype_3d_bagloos.ahn import AhnRoofEvidence, _roof_cross_sections
     from woningtype_3d_bagloos.classify import TWEEKAP, VRIJ
     from woningtype_3d_bagloos.plugin import WoningtypeBagloosProvider
@@ -144,7 +144,6 @@ try:
     assert [f["Woningtype"] for f in second.getFeatures()] == [VRIJ, VRIJ]
     # Landelijke modus: grenspanden in twee tegels één keer uitvoeren.
     from pathlib import Path
-    from qgis.core import QgsVectorLayer
     wide = QgsVectorLayer("Polygon?crs=EPSG:28992", "Landelijke test-BAG", "memory")
     wide.dataProvider().addAttributes(bag.fields().toList())
     wide.updateFields()
@@ -187,5 +186,15 @@ try:
         assert all(f["Dakbron"] == "BAG-pandcontouren" for f in all_features)
 
     print("QGIS 4 processing, kaartvenster, landelijke tegels, en AHN: OK")
+try:
+    run()
 finally:
+    # Destroy layers/contexts before tearing down GDAL providers (QGIS 3).
+    # Running all checks in a function releases their local C++ wrappers first.
+    import gc
+    from woningtype_3d_bagloos.styling import WoningtypePostProcessor
+    WoningtypePostProcessor._references.clear()
+    QgsProject.instance().clear()
+    gc.collect()
     app.exitQgis()
+
