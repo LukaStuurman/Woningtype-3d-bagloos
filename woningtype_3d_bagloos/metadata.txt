@@ -1,0 +1,14 @@
+[general]
+name=Woningtype 3D-bagloos
+qgisMinimumVersion=3.34
+version=0.1.0
+author=LukaStuurman
+description=Classificeer woningtypen met BAG en zelf afgeleide, gecachte AHN dakcontacten, zonder 3DBAG.
+about=Zelfstandige QGIS Processing-plugin. BAG WFS + kleine PDOK AHN DSM GeoTIFF tegels. Kan offline werken met cache en markeert onzekere dakrelaties. Geen compleet 3D model of 3DBAG server nodig.
+category=Vector
+experimental=True
+deprecated=False
+hasProcessingProvider=True
+repository=https://github.com/LukaStuurman/Woningtype-3d-bagloos
+homepage=https://github.com/LukaStuurman/Woningtype-3d-bagloos
+tracker=https://github.com/LukaStuurman/Woningtype-3d-bagloos/issues
