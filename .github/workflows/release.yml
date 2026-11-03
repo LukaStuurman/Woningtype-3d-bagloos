@@ -15,8 +15,12 @@ concurrency:
 jobs:
   qgis-smoke:
     runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        image: [qgis/qgis:3.34-noble, qgis/qgis:3.44.5-noble, qgis/qgis:4.2.0-questing]
     container:
-      image: qgis/qgis:4.2.0-questing
+      image: ${{ matrix.image }}
     steps:
       - uses: actions/checkout@v4
       - name: Test echt QGIS Processing, kaartvenster en landelijke tegels
@@ -29,6 +33,10 @@ jobs:
           XDG_RUNTIME_DIR=/tmp/qgis-bagloos-runtime \
           PYTHONPATH="$PWD:/usr/share/qgis/python" \
           python3 qgis_tests/smoke.py
+          QT_QPA_PLATFORM=offscreen \
+          XDG_RUNTIME_DIR=/tmp/qgis-bagloos-runtime \
+          PYTHONPATH="$PWD:/usr/share/qgis/python" \
+          python3 qgis_tests/real_regression.py
 
   build:
     needs: qgis-smoke

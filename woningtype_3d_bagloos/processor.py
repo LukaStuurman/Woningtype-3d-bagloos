@@ -187,8 +187,14 @@ def _find_neighbours(records, tolerance, feedback):
                 continue
             first, second = record["geom"], records[j]["geom"]
             if first.intersects(second) or first.distance(second) <= tolerance:
-                neighbours[i].add(j)
-                neighbours[j].add(i)
+                polygons = first.asMultiPolygon() if first.isMultipart() else [first.asPolygon()]
+                # A corner touching a third pand is not a shared dwelling wall.
+                strip = second.buffer(max(tolerance, .01), 5)
+                contact = sum(QgsGeometry.fromPolylineXY(p[0]).intersection(strip).length()
+                              for p in polygons if p)
+                if contact >= .7:
+                    neighbours[i].add(j)
+                    neighbours[j].add(i)
     return neighbours
 
 
@@ -470,6 +476,11 @@ class WoningtypenBepalenAlgorithm(QgsProcessingAlgorithm):
                     % (tiles_done, dense_splits, count, 100.0*done_area/total_area)
                 )
 
+        if hasattr(sink, "finalize"):
+            sink.finalize()
+        elif not sink.flushBuffer():
+            raise QgsProcessingException("Kon de uitvoerlaag niet voltooien.")
+        del sink
         feedback.setProgress(100)
         # QGIS laadt slechts de ENIGE uitvoersink. Koppel styling uitsluitend
         # aan die output (niet aan de tijdelijke BAG WFS of een tweede laag).

@@ -15,7 +15,7 @@ from urllib.request import Request, urlopen
 from qgis.PyQt.QtCore import QStandardPaths
 from qgis.core import QgsGeometry, QgsPointXY, QgsRasterLayer
 
-from .classify import roof_continuity
+from .segmentation import RoofZones
 
 WCS_URL = "https://service.pdok.nl/rws/ahn/wcs/v1_0"
 COVERAGE = "dsm_05m"
@@ -69,11 +69,11 @@ def _roof_cross_sections(a, b):
         segments.extend(_segments(ring.intersection(buffer_b)))
     result = []
     for start, end, length in sorted(segments, key=lambda entry: -entry[2]):
-        count = min(10, max(2, ceil(length / 2.5)))
+        count = min(128, max(2, ceil(length / 0.5)))
         dx, dy = (end.x()-start.x())/length, (end.y()-start.y())/length
         nx, ny = -dy, dx
         for step in range(count):
-            if len(result) >= 12:
+            if len(result) >= 512:
                 return result
             ratio = (step + 0.5)/count
             x = start.x() + ratio*(end.x()-start.x())
@@ -193,14 +193,8 @@ class AhnRoofEvidence:
             return None
         return float(value)
 
-    def main_roof_height(self, geom):
-        """Bepaal robuust de hoge dakzone over de VOLLEDIGE BAG-pandcontour.
-
-        Een contactstrook over een garage is geen representatieve dakhoogte
-        van het huis. Gebruik daarom een begrensd regelmatig DSM-steekproefgrid
-        over het hele pand. Het 80e percentiel vermijdt een enkele boom of
-        schoorsteen als 'hoogste dak' en blijft gevoelig voor hogere hoofdvolumes.
-        """
+    def roof_zones(self, geom):
+        """Sample the actual footprint at 0.5 m; cache spatial roof components."""
         if geom.isEmpty():
             return None
         key = blake2b(bytes(geom.asWkb()), digest_size=12).digest()
@@ -208,61 +202,74 @@ class AhnRoofEvidence:
             self.roof_levels.move_to_end(key)
             return self.roof_levels[key]
         rect = geom.boundingBox()
-        width, height = rect.width(), rect.height()
-        if width <= 0 or height <= 0:
+        spacing = max(.5, sqrt(rect.width() * rect.height() / 4096.0))
+        if rect.width() <= 0 or rect.height() <= 0:
             return None
-        spacing = max(1.5, sqrt(width * height / 140.0))
-        nx = max(1, ceil(width / spacing))
-        ny = max(1, ceil(height / spacing))
-        values = []
-        for j in range(ny):
+        origin = rect.xMinimum(), rect.yMinimum()
+        samples, expected = {}, 0
+        for j in range(ceil(rect.height()/spacing)):
             if self.feedback.isCanceled():
                 return None
-            y = rect.yMinimum() + (j + 0.5) * height / ny
-            for i in range(nx):
-                x = rect.xMinimum() + (i + 0.5) * width / nx
-                if not _point_in(geom, x, y):
-                    continue
-                h = self.height(x, y)
-                if h is not None and isfinite(h):
-                    values.append(h)
-        values.sort()
-        level = (values[int((len(values) - 1) * 0.80)]
-                 if len(values) >= 6 else None)
-        self.roof_levels[key] = level
-        if len(self.roof_levels) > 1500:
+            y = origin[1] + (j+.5)*spacing
+            for i in range(ceil(rect.width()/spacing)):
+                x = origin[0] + (i+.5)*spacing
+                if _point_in(geom, x, y):
+                    expected += 1
+                    h = self.height(x, y)
+                    if h is not None and isfinite(h):
+                        samples[i, j] = h
+        zones = RoofZones(samples, origin, spacing, expected)
+        self.roof_levels[key] = zones
+        # Spatial grids are larger than the previous scalar height cache.
+        if len(self.roof_levels) > 128:
             self.roof_levels.popitem(last=False)
-        return level
+        return zones
+
+    def main_roof_height(self, geom):
+        zones = self.roof_zones(geom)
+        return zones.level if zones is not None and zones.reliable else None
 
     def check(self, geom_a, geom_b):
-        """True/False/None: doorlopend hoofddak / lage aanbouw / onzeker."""
+        """Use paired spatial roof zones along ALL contact strips.
+
+        Mixed main/garage boundaries must retain their real main-roof contact;
+        taking the median over the whole boundary loses that information.
+        Missing DSM cells never count as evidence for a detached house.
+        """
         cuts = _roof_cross_sections(geom_a, geom_b)
-        if len(cuts) < 3:
+        if len(cuts) < 2:
             return None
-        main_a = self.main_roof_height(geom_a)
-        main_b = self.main_roof_height(geom_b)
-        if main_a is None or main_b is None:
+        a, b = self.roof_zones(geom_a), self.roof_zones(geom_b)
+        if a is None or b is None or not a.reliable or not b.reliable:
             return None
-        edge_a, edge_b, inside_a, inside_b = [], [], [], []
+        valid, low, run, longest = 0, 0, 0, 0
+        previous = None
         for x, y, nx, ny in cuts:
             if self.feedback.isCanceled():
                 return None
-            ax, ay = x+nx*1.25, y+ny*1.25
-            bx, by = x-nx*1.25, y-ny*1.25
-            ha, hb = self.height(ax, ay), self.height(bx, by)
-            if ha is None or hb is None:
+            ax, ay, bx, by = x+nx*1.25, y+ny*1.25, x-nx*1.25, y-ny*1.25
+            za, zb = a.at(ax, ay), b.at(bx, by)
+            if za is None or zb is None:
+                run, previous = 0, None
                 continue
-            edge_a.append(ha)
-            edge_b.append(hb)
-            inside_a.append(ha)
-            inside_b.append(hb)
-            for depth in (3.0, 5.0):
-                ax, ay = x+nx*depth, y+ny*depth
-                bx, by = x-nx*depth, y-ny*depth
-                if _point_in(geom_a, ax, ay):
-                    inside_a.append(self.height(ax, ay))
-                if _point_in(geom_b, bx, by):
-                    inside_b.append(self.height(bx, by))
-        return roof_continuity(
-            edge_a, edge_b, inside_a, inside_b, main_a, main_b
-        )
+            valid += 1
+            is_main = False
+            if za and zb:
+                ha, hb = self.height(ax, ay), self.height(bx, by)
+                if ha is not None and hb is not None and abs(ha-hb) <= 1.5:
+                    is_main = True
+            elif za is False or zb is False:
+                low += 1
+            if is_main:
+                contiguous = previous is not None and hypot(x-previous[0], y-previous[1]) <= 1.0
+                run = run+1 if contiguous else 1
+                previous = (x, y)
+                longest = max(longest, run)
+            else:
+                run, previous = 0, None
+        # Four consecutive 0.5 m samples, not isolated tree/raster pixels.
+        if longest >= 4:
+            return True
+        if valid >= .8 * len(cuts) and low >= .8 * valid and longest <= 1:
+            return "bijgebouw"
+        return None

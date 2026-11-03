@@ -90,8 +90,7 @@ def classify_pands(records, neighbours, roof_links=None, source="AHN"):
     neighbours: {index: set(buurindex)}
     roof_links: {(min_idx,max_idx): True/False/None/"bijgebouw"}.
     Een aangrenzend laag garagedak vormt geen extra hoofdgebouwbuur.
-    Bij een uniek, wederzijds garagecontact tussen twee losse woonpanden
-    mag een indicatief twee-onder-een-kappaar worden herkend.
+    Ook een unieke garageverbinding is geen hoofdwoningverbinding.
     """
     roof_links = roof_links or {}
     out = []
@@ -107,24 +106,6 @@ def classify_pands(records, neighbours, roof_links=None, source="AHN"):
                 accessory[i].append(j)
             elif link is not False:
                 effective[i].append(j)
-
-    # Twee huizen die ALLEEN via elkaars lage garages aansluiten zijn
-    # vermoedelijk twee-onder-een-kap, niet vrijstaand. Herken uitsluitend
-    # een wederzijdse unieke garageverbinding: bij meerdere kandidaten is
-    # de woningpaar-indeling niet voldoende te bewijzen.
-    garage_pairs = set()
-    for i in range(len(records)):
-        if effective[i] or len(accessory[i]) != 1:
-            continue
-        j = accessory[i][0]
-        if (not effective[j] and accessory[j] == [i]
-                and safe_int(records[i].get("count_vbo")) <= 1
-                and safe_int(records[j].get("count_vbo")) <= 1):
-            # Altijd beide kanten tegelijk koppelen. Een eenzijdige
-            # toekenning maakte het andere huis onterecht vrijstaand.
-            effective[i].append(j)
-            effective[j].append(i)
-            garage_pairs.update((i, j))
 
     for i, record in enumerate(records):
         has_home = living_pand(record.get("usage"))
@@ -164,8 +145,6 @@ def classify_pands(records, neighbours, roof_links=None, source="AHN"):
             quality = "geen aangrenzende BAG-panden"
         elif uncertain:
             quality = "controle nodig: AHN-contact ontbreekt of is onzeker"
-        elif i in garage_pairs:
-            quality = "indicatief twee-onder-een-kap via garages; controle gewenst"
         elif accessory[i]:
             quality = "lage garagecontacten niet als hoofddak meegeteld"
         else:

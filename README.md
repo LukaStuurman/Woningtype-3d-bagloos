@@ -29,13 +29,13 @@ Gebruikte categorieën (compatibel met Techbase LS Netontwerp): `vrijstaande won
 1. Start in QGIS de knop **Woningtype 3D-bagloos**. Kies het huidige kaartvenster, een eigen gebied of heel Nederland.
 2. De plugin leest BAG-panden in het gebied plus een smalle buurbuffer, en herkent appartementen via woonfunctie + aantal VBO's. Afzonderlijke garage- of bergingpanden zonder woonfunctie tellen **niet** als buurwoning, ook als ze nul verblijfsobjecten bevatten.
 3. Een lokale ruimtelijke index bepaalt welke pandcontouren werkelijk aangrenzen (standaard maximaal 0,20 m afstand).
-4. **Uitsluitend voor aangrenzende woonpanden** vraagt de plugin beperkte AHN DSM-rastertegels op. Met een ruimtelijk steekproefgrid wordt eerst het **hogere hoofddak van het complete BAG-pand** bepaald (robuust 80e percentiel, geen willekeurige hoogste pixel). Daarna vergelijkt de plugin dat met de dakhoogtes langs de gedeelde pandgrens en verder naar binnen. Een lage garage/carport die twee hoofdgebouwen verbindt, telt dan niet mee als doorlopende hoofdgebouwverbinding. Dit voorkomt dat twee paren twee-onder-een-kapwoningen door hun garages als rijtjeshuizen worden gezien.
+4. **Uitsluitend voor aangrenzende woonpanden** vraagt de plugin AHN DSM-rastertegels op. Een ruimtelijk grid van 0,5 m binnen het hele BAG-pand wordt verdeeld in samenhangende hogere dakzones en lagere verbindingsdaken. Kleine losse hoge pixels worden uitgesloten. Voor grote contouren wordt de gridafstand begrensd vergroot. Langs de volledige gedeelde grens worden gekoppelde profielen om de circa 0,5 m beoordeeld. Een aantoonbaar hoofdcontact blijft behouden, ook als het grootste deel van die grens garage is. Lage garagecontacten vormen nooit zelfstandig een twee-onder-een-kappaar. Alleen puntcontacten tussen panden tellen niet mee.
 5. DSM-GeoTIFF-tegels worden hergebruikt uit een permanente lokale cache onder de gebruikersmap. Zonder netwerk kan **Alleen lokaal opgeslagen AHN gebruiken** aan. Als hoogten ontbreken of te twijfelachtig zijn, blijven BAG-pandrelaties leidend en wordt een controle-indicator gezet.
 6. Het resultaat kan als GeoPackage worden opgeslagen en op BAG-identificatie of locatie gekoppeld aan Techbase LS Netontwerp. De plugin **wijzigt geen ontwerpstroomregels**.
 
-## Uitvoerlaag en automatische kleuren (v0.4.1)
+## Uitvoerlaag en automatische kleuren (v0.5.0)
 
-De verwerking maakt één Processing-resultaatlaag met veld `Woningtype` aan. Bij uitvoer via de QGIS-werkbalk verwijdert de plugin eventueel door QGIS geladen lege extra resultaatlagen, maar laat andere, oudere of bronlagen ongemoeid. Bij het inladen van de resultaatlaag krijgt deze automatisch een **gecategoriseerde symbologie op `Woningtype`**, met eigen kleuren voor vrijstaand, twee-onder-een-kap, hoekwoning, tussenwoning/geschakeld en appartement. Panden zonder woonfunctie zijn lichtgrijs.
+De verwerking maakt één Processing-resultaatlaag met veld `Woningtype` aan. De sink wordt voltooid voordat QGIS de enige uitvoerlaag laadt; er is geen achteraf-opruimactie die projectlagen verwijdert. Bij het inladen van de resultaatlaag krijgt deze automatisch een **gecategoriseerde symbologie op `Woningtype`**, met eigen kleuren voor vrijstaand, twee-onder-een-kap, hoekwoning, tussenwoning/geschakeld en appartement. Panden zonder woonfunctie zijn lichtgrijs.
 
 Deze styling gebeurt via QGIS' Processing-postprocessor: tijdens berekening wordt géén tweede kaartlaag aangemaakt. De indeling blijft een indicatieve AHN-heuristiek; garages zitten vaak **binnen dezelfde BAG-pandcontour** als het hoofdgebouw. Daarom vergelijkt de nieuwe dakcontrole de dakhoogtes bij elke grens met de hogere dakzone van het gehele BAG-pand. **BAG-only** kan dit onderscheid niet maken; hiervoor moet de AHN-modus actief zijn en hoogtegegevens beschikbaar zijn.
 
@@ -51,9 +51,13 @@ Doelplatform: QGIS 3.34+ en QGIS 4 (PyQGIS / GDAL, zonder externe Python-pakkett
 - AHN WCS: <https://service.pdok.nl/rws/ahn/wcs/v1_0> — `dsm_05m`, OGC WCS 2.0.1.
 - 3DBAG wordt **niet** benaderd. Dit is een nieuwe, zelfstandige benadering; er wordt geen code uit de Techbase-plugin of 3DBAG-implementatie gekopieerd.
 
-## Verbetering in 0.3.0: garages en carports
+## Gevalideerd met echte BAG en AHN (0.5.0)
 
-De dakcontactcontrole kijkt nu niet alleen naar de hoogte bij een BAG-pandgrens maar vergelijkt deze met representatieve hoogtes verspreid over de hele pandcontour. Lage, aan elkaar gebouwde garages worden zo als aparte verbindingsbouw beoordeeld. **Garages zitten meestal binnen dezelfde BAG-pandcontour als de woning.** Een lage garageverbinding tussen twee al via hun hoofdgebouwen gekoppelde paren telt niet als een derde woning in de rij. Twee woonpanden die uitsluitend via één wederzijdse, unieke garageverbinding aansluiten, kunnen juist indicatief als twee-onder-een-kap worden geclassificeerd; bij meerdere kandidaten blijft de paarvorming onzeker. Het veld `DakBijgeb` telt deze lage dakcontacten. Dat is een **benadering** van de dakvlakgedachte achter 3DBAG, maar geen automatische LoD2-dakreconstructie. Bij alleen BAG, uitgeschakelde AHN-controle of ontbrekende AHN-data kan de plugin garageverbindingen niet betrouwbaar onderscheiden; zie dan het veld `Controle`.
+De drie aangeleverde screenshots zijn gematcht op de werkelijke BAG-contouren in Eindhoven. Op 3 november 2026 zijn BAG WFS en twaalf originele AHN DSM-tegels opnieuw opgehaald. De volledige Processing-verwerking via live PDOK WFS geeft voor alle 27 betrokken woningen de gevraagde indeling: geval 1 vier twee-onder-een-kap en één vrijstaand; geval 2 vier vrijstaand; geval 3 achttien twee-onder-een-kap. Het betreft echte gemeten hoogten, geen gesimuleerde rasters.
+
+Zie [VALIDATION.md](VALIDATION.md) voor BAG-ID's, bronnen, begrenzingen, beperkingen en reproduceerbare tests. De oorspronkelijke BAG/GeoTIFF-snapshots met SHA-256 staan onder `qgis_tests/data`. CI controleert deze echte gevallen inclusief omgekeerde featurevolgorde en contactrichting, geheugen- en GeoPackage-uitvoer, en precies één automatisch gestylede resultaatlaag. Publicatie wacht op de volledige testmatrix van QGIS 3.34, 3.44.5 en 4.2.0.
+
+De nieuwe dakzones zijn een rasterbenadering, geen LoD2-dakvlakken of constructieve woningscheidingsanalyse. Er is geen 3DBAG-server of code uit de Techbase-plugin gebruikt. De Techbase-plugin wordt niet gewijzigd.
 
 ## Aandachtspunten en betrouwbaarheid
 

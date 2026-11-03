@@ -81,7 +81,7 @@ class WoningtypeTests(unittest.TestCase):
             ), True
         )
 
-    def test_twee_huizen_alleen_via_lage_garages_toch_tweekap(self):
+    def test_twee_huizen_alleen_via_lage_garages_blijven_vrijstaand(self):
         # De garage is onderdeel van dezelfde BAG-pandcontour als het huis.
         # Beide hoofdgebouwen staan los maar de garages verbinden het paar.
         pands = [self._home(), self._home()]
@@ -89,10 +89,10 @@ class WoningtypeTests(unittest.TestCase):
             pands, {0: {1}, 1: {0}}, {(0, 1): "bijgebouw"}
         )
         self.assertEqual(
-            [r["woningtype"] for r in result], [TWEEKAP, TWEEKAP]
+            [r["woningtype"] for r in result], [VRIJ, VRIJ]
         )
         self.assertEqual([r["dakbijgeb"] for r in result], [1, 1])
-        self.assertIn("via garages", result[0]["controle"])
+        self.assertIn("niet als hoofddak", result[0]["controle"])
 
     def test_alleen_garageketting_is_geen_bewijs_voor_rijtjeshuis(self):
         # Bij drie garages op rij kunnen we zonder dakvlakgeometrie niet

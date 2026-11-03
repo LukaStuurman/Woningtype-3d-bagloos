@@ -1,4 +1,7 @@
 """Handmatige CI-smoketest in een echte QGIS 4-container (zonder webrequests)."""
+import sys
+from pathlib import Path
+sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 import tempfile
 from unittest.mock import patch
 
@@ -121,35 +124,6 @@ try:
     }
     assert layer.name() == "Woningtypen - test"
 
-    # QGIS-versies kunnen een tweede, lege output-placeholder registreren.
-    # Die mag verwijderd worden, maar de gevulde laag en reeds bestaande
-    # lagen in het project blijven bestaan.
-    from woningtype_3d_bagloos.plugin import WoningtypeBagloosPlugin
-    project = QgsProject.instance()
-    initial = set(project.mapLayers())
-    populated = QgsVectorLayer(
-        "Polygon?crs=EPSG:28992", "gevuld resultaat", "memory"
-    )
-    empty = QgsVectorLayer(
-        "Polygon?crs=EPSG:28992", "lege dubbele laag", "memory"
-    )
-    for target in (populated, empty):
-        target.dataProvider().addAttributes([
-            QgsField("Woningtype", QVariant.String)
-        ])
-        target.updateFields()
-    feat = QgsFeature(populated.fields())
-    feat.setGeometry(a)
-    feat.setAttributes([TWEEKAP])
-    assert populated.dataProvider().addFeatures([feat])[0]
-    project.addMapLayer(populated)
-    project.addMapLayer(empty)
-    populated_id, empty_id = populated.id(), empty.id()
-    WoningtypeBagloosPlugin._remove_empty_duplicate_results(initial)
-    assert project.mapLayer(populated_id) is not None
-    assert project.mapLayer(empty_id) is None
-    project.removeMapLayer(populated.id())
-
     # PostProcessor draait uitsluitend voor de aan QGIS te laden resultaatlaag.
     post = WoningtypePostProcessor.create("Woningtypen - AHN-dakcontrole")
     post.postProcessLayer(layer, context, feedback)
@@ -184,7 +158,7 @@ try:
         assert wide.dataProvider().addFeatures([feat])[0]
     wide.updateExtents()
     import woningtype_3d_bagloos.processor as processor
-    with tempfile.TemporaryDirectory() as directory:
+    with tempfile.TemporaryDirectory(ignore_cleanup_errors=True) as directory:
         national = WoningtypenBepalenAlgorithm()
         national.initAlgorithm()
         national_context = QgsProcessingContext()

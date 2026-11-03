@@ -1,0 +1,30 @@
+{
+  "captured_utc": "2026-11-03T10:01:58.437960+00:00",
+  "bag_source": "https://service.pdok.nl/kadaster/bag/wfs/v2_0",
+  "bag_bbox_rd": [
+    162180,
+    388200,
+    162850,
+    388620
+  ],
+  "bag_query": "GetFeature bag:pand WFS 2.0.0, application/json, EPSG:28992, startIndex pagination",
+  "ahn_source": "https://service.pdok.nl/rws/ahn/wcs/v1_0",
+  "ahn_coverage": "dsm_05m",
+  "ahn_query": "WCS 2.0.1 GetCoverage; EPSG:28992; each 64 m tile plus 1 m margin; original GeoTIFF, not resampled",
+  "files": {
+    "bag.geojson": "aaadc3cdd776f65a363e334e1e875db111d4e51c4971f85fafa17408f0de2264",
+    "expected.json": "8f78e061f613e91a53ea370649791a93d729c3f1c496457dabd9a3ec8f9459d9",
+    "ahn/dsm_2535_6066.tif": "cd8295a0f2c82ef0ce6f9543a13965244ff3aebdf8c1159dcfbd0d1312d0185a",
+    "ahn/dsm_2535_6067.tif": "92fd02791e400635cc908f527b83b344857d085dd9776b1e36b60fe868d46576",
+    "ahn/dsm_2535_6068.tif": "19771007a76e7f5a812ea6ebb843200d7ce517923daa0c45d76ad8a5031a75c4",
+    "ahn/dsm_2535_6069.tif": "c68f74d275175d5be740d974534c2fea38414624db52568f463172ba0bc75675",
+    "ahn/dsm_2536_6066.tif": "685b55f67a5b92903498b4caa30ccc9508f5fb742f0c49947f45f540abc7e8c1",
+    "ahn/dsm_2536_6067.tif": "abbc257763cccc7b712221eb8b1cd1b8cddc8e185383d5d55ea0e9d21980894d",
+    "ahn/dsm_2536_6068.tif": "cac7b46f691102d835a00fec78dba96e6719714d779e4517479e62de07cf2556",
+    "ahn/dsm_2536_6069.tif": "1300196bcc2c604a34421cffad05e053db7575506e38a0c1c5a41dcae7424386",
+    "ahn/dsm_2539_6068.tif": "e069dfb61347f4ecd2c21760da812f34eb9c8f3e7ce8923f92a36d070eaaeaab",
+    "ahn/dsm_2539_6069.tif": "a09090826d360d0026f5e28901af44bf8840226a0d6d7db020edf3ba02ef9b23",
+    "ahn/dsm_2540_6068.tif": "ecc53d3d4b5987b2f52458683bf65e9bde4b29adbc34fcc2b004d36d7aa44878",
+    "ahn/dsm_2540_6069.tif": "37feee96b9bacb252d2bf381f170ad83991688dabc56684e727983638ef93b2a"
+  }
+}
