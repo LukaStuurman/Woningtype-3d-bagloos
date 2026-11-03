@@ -388,10 +388,12 @@ class WoningtypenBepalenAlgorithm(QgsProcessingAlgorithm):
         count, uncertain, dense_splits, tiles_done = 0, 0, 0, 0
 
         feedback.pushInfo(
-            "Start %s: %d begint egels van maximaal %d x %d m."
+            "Start %s: %d begintegels van maximaal %d x %d m."
             % (["kaartvenster", "zelfgekozen gebied", "heel Nederland"][area_mode],
                total_tiles, tile_size, tile_size)
         )
+
+        overall_geometry = QgsGeometry.fromRect(extent) if area_mode != 2 else None
 
         while queue:
             if feedback.isCanceled():
@@ -433,7 +435,7 @@ class WoningtypenBepalenAlgorithm(QgsProcessingAlgorithm):
                 point = center.asPoint()
                 if not tile_owns_point(tile, bounds, point.x(), point.y()):
                     continue
-                if not geom.intersects(QgsGeometry.fromRect(extent)):
+                if overall_geometry is not None and not geom.intersects(overall_geometry):
                     continue
 
                 result = QgsFeature(result_fields)
